@@ -38,4 +38,4 @@ fmt:
 	go fmt response/*.go
 
 bin:	self
-	@GOPATH=$(shell pwd) go build -o bin/test cmd/test.go
+	@GOPATH=$(shell pwd) go build -o bin/wof-api-search cmd/wof-api-search.go

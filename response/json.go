@@ -2,6 +2,7 @@ package response
 
 import (
 	"encoding/json"
+	"errors"		
 	"fmt"
 	"github.com/tidwall/gjson"
 	"github.com/whosonfirst/go-whosonfirst-api"
@@ -96,6 +97,11 @@ func (rsp JSONResponse) Pagination() (api.APIPagination, error) {
 	// to do : something something something that would trigger error
 
 	page := rsp.Get("page")
+
+	if !page.Exists(){
+		return nil, errors.New("Response is not paginated")
+	}
+	
 	pages := rsp.Get("pages")
 	per_page := rsp.Get("per_page")
 	total := rsp.Get("total")
