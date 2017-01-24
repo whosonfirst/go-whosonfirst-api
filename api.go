@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/tidwall/gjson" // see notes below
 	"net/http"
 	"net/url"
 )
@@ -17,9 +18,9 @@ type APIClient interface {
 
 type APIResponse interface {
 	String() string
-	Stat() string
 	Ok() (bool, APIError)
-	// Get(string) interface{}
+	Get(string) gjson.Result // this is not correct - we need something more generic but interface{} doesn't work...
+	// we need something something something pagination here...
 }
 
 type APIError interface {

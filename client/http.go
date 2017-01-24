@@ -1,9 +1,11 @@
 package client
 
 import (
+	"errors"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/response"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 )
@@ -63,4 +65,41 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 	}
 
 	return rsp, nil
+}
+
+func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Values) error {
+
+	pages := 0
+	page := 1
+
+	for {
+
+		params.Set("page", string(page))
+
+		log.Println(page, pages, params)
+		rsp, err := client.ExecuteMethod(method, params)
+
+		if err != nil {
+			return err
+		}
+
+		_, api_err := rsp.Ok()
+
+		if api_err != nil {
+			return errors.New(api_err.String())
+		}
+
+		if pages == 0 {
+			r := rsp.Get("pages")
+			pages = int(r.Int())
+		}
+
+		if page >= pages {
+			break
+		}
+
+		page += 1
+	}
+
+	return nil
 }
