@@ -1,10 +1,9 @@
 package response
 
-// PLEASE MAKE ME SUPPORT (not-just-json)
-
 import (
 	"encoding/json"
 	"github.com/tidwall/gjson"
+        "github.com/whosonfirst/go-whosonfirst-api"
 )
 
 type APIError struct {
@@ -12,25 +11,26 @@ type APIError struct {
 	Message string
 }
 
-type APIResponse struct {
+type JSONResponse struct {
+     api.APIResponse     		  
 	Raw []byte
 }
 
-func (rsp APIResponse) String() string {
+func (rsp JSONResponse) String() string {
      return string(rsp.Raw)
 }
 
-func (rsp APIResponse) Get(path string) gjson.Result {
+func (rsp JSONResponse) Get(path string) gjson.Result {
 	return gjson.GetBytes(rsp.Raw, path)
 }
 
-func (rsp APIResponse) Stat() string {
+func (rsp JSONResponse) Stat() string {
 
 	r := rsp.Get("stat")
 	return r.String()
 }
 
-func (rsp APIResponse) Ok() (bool, *APIError) {
+func (rsp JSONResponse) Ok() (bool, *APIError) {
 
 	if rsp.Stat() == "ok" {
 		return true, nil
@@ -39,7 +39,7 @@ func (rsp APIResponse) Ok() (bool, *APIError) {
 	return false, rsp.Error()
 }
 
-func (rsp APIResponse) Error() *APIError {
+func (rsp JSONResponse) Error() *APIError {
 
 	code := rsp.Get("error.code")
 	msg := rsp.Get("error.message")
@@ -52,7 +52,7 @@ func (rsp APIResponse) Error() *APIError {
 	return &err
 }
 
-func ParseAPIResponse(raw []byte) (*APIResponse, error) {
+func ParseJSONResponse(raw []byte) (*JSONResponse, error) {
 
 	var stub interface{}
 	err := json.Unmarshal(raw, &stub)
@@ -61,7 +61,7 @@ func ParseAPIResponse(raw []byte) (*APIResponse, error) {
 		return nil, err
 	}
 
-	rsp := APIResponse{
+	rsp := JSONResponse{
 		Raw: raw,
 	}
 

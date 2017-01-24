@@ -27,7 +27,7 @@ func (client *HTTPClient) DefaultArgs() *url.Values {
 	return &args
 }
 
-func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (*response.APIResponse, error) {
+func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.APIResponse, error) {
 
 	params.Set("method", method)
 
@@ -54,7 +54,9 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (*res
 		return nil, io_err
 	}
 
-	rsp, parse_err := response.ParseAPIResponse(http_body)
+	// to do: support other formats...
+	
+	rsp, parse_err := response.ParseJSONResponse(http_body)
 
 	if parse_err != nil {
 		return nil, parse_err

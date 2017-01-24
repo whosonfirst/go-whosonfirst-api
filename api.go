@@ -13,3 +13,7 @@ type APIEndpoint interface {
 type APIClient interface {
      // please write me
 }
+
+type APIResponse interface {
+     // please write me
+}
