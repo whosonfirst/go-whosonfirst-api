@@ -14,6 +14,8 @@ self:   prep
 	cp endpoint/*.go src/github.com/whosonfirst/go-whosonfirst-api/endpoint/
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/response
 	cp response/*.go src/github.com/whosonfirst/go-whosonfirst-api/response/
+	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/result
+	cp result/*.go src/github.com/whosonfirst/go-whosonfirst-api/result/
 	cp api.go src/github.com/whosonfirst/go-whosonfirst-api/
 	if test ! -d src; then mkdir src; fi
 	cp -r vendor/src/* src/
@@ -23,6 +25,8 @@ rmdeps:
 
 deps:   
 	@GOPATH=$(GOPATH) go get -u "github.com/tidwall/gjson"
+	@GOPATH=$(GOPATH) go get -u "github.com/whosonfirst/go-whosonfirst-placetypes"
+	@GOPATH=$(GOPATH) go get -u "github.com/whosonfirst/go-whosonfirst-uri"
 
 vendor-deps: rmdeps deps
 	if test ! -d vendor; then mkdir vendor; fi
@@ -36,6 +40,7 @@ fmt:
 	go fmt client/*.go
 	go fmt endpoint/*.go
 	go fmt response/*.go
+	go fmt result/*.go
 
 bin:	self
 	@GOPATH=$(shell pwd) go build -o bin/wof-api-search cmd/wof-api-search.go

@@ -2,10 +2,12 @@ package response
 
 import (
 	"encoding/json"
-	"errors"		
+	"errors"
 	"fmt"
 	"github.com/tidwall/gjson"
 	"github.com/whosonfirst/go-whosonfirst-api"
+	"github.com/whosonfirst/go-whosonfirst-api/result"
+	_ "log"
 )
 
 type JSONPagination struct {
@@ -55,20 +57,20 @@ func (e JSONError) String() string {
 
 type JSONResponse struct {
 	api.APIResponse
-	Raw []byte
+	raw []byte
+}
+
+func (rsp JSONResponse) Raw() []byte {
+	return rsp.raw
 }
 
 func (rsp JSONResponse) String() string {
-	return string(rsp.Raw)
-}
-
-func (rsp JSONResponse) Get(path string) gjson.Result {
-	return gjson.GetBytes(rsp.Raw, path)
+	return string(rsp.raw)
 }
 
 func (rsp JSONResponse) Stat() string {
 
-	r := rsp.Get("stat")
+	r := rsp.get("stat")
 	return r.String()
 }
 
@@ -81,8 +83,8 @@ func (rsp JSONResponse) Ok() (bool, api.APIError) {
 	// TO DO: support this stuff
 	// {"meta":{"version":1,"status_code":429},"results":{"error":{"type":"QpsExceededError","message":"Queries per second exceeded: Queries exceeded (1 allowed)."}}}
 
-	code := rsp.Get("error.code")
-	msg := rsp.Get("error.message")
+	code := rsp.get("error.code")
+	msg := rsp.get("error.message")
 
 	err := JSONError{
 		code:    code.Int(),
@@ -92,19 +94,46 @@ func (rsp JSONResponse) Ok() (bool, api.APIError) {
 	return false, &err
 }
 
+func (rsp JSONResponse) Results() ([]api.APIResult, error) {
+
+	results := make([]api.APIResult, 0)
+
+	_results := rsp.get("results")
+
+	// TO DO: signal failed NewJSONResult
+
+	_results.ForEach(func(key, value gjson.Result) bool {
+
+		_result, err := result.NewJSONResult(value)
+
+		if err != nil {
+			return false
+		}
+
+		results = append(results, _result)
+		return true
+	})
+
+	return results, nil
+}
+
+func (rsp JSONResponse) get(path string) gjson.Result {
+	return gjson.GetBytes(rsp.raw, path)
+}
+
 func (rsp JSONResponse) Pagination() (api.APIPagination, error) {
 
 	// to do : something something something that would trigger error
 
-	page := rsp.Get("page")
+	page := rsp.get("page")
 
-	if !page.Exists(){
+	if !page.Exists() {
 		return nil, errors.New("Response is not paginated")
 	}
-	
-	pages := rsp.Get("pages")
-	per_page := rsp.Get("per_page")
-	total := rsp.Get("total")
+
+	pages := rsp.get("pages")
+	per_page := rsp.get("per_page")
+	total := rsp.get("total")
 
 	pg := JSONPagination{
 		page:     int(page.Int()),
@@ -126,7 +155,7 @@ func ParseJSONResponse(raw []byte) (*JSONResponse, error) {
 	}
 
 	rsp := JSONResponse{
-		Raw: raw,
+		raw: raw,
 	}
 
 	return &rsp, nil

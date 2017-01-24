@@ -16,15 +16,28 @@ type APIClient interface {
 }
 
 type APIResponse interface {
+	Raw() []byte
 	String() string
 	Ok() (bool, APIError)
 	Pagination() (APIPagination, error)
+	Results() ([]APIResult, error)
 }
 
 type APIError interface {
 	String() string
 	Code() int64
 	Message() string
+}
+
+type APIResult interface {
+	WOFId() int64
+	WOFParentId() int64
+	WOFName() string
+	WOFPlacetype() string
+	WOFCountry() string
+	WOFRepo() string
+	Path() string
+	URI() string
 }
 
 type APIPagination interface {

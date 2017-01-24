@@ -26,8 +26,17 @@ func main () {
 
      cb := func(rsp api.APIResponse) error {
 
-     	   
-     	log.Println(rsp.String())
+     	results, err := rsp.Results()
+
+	if err != nil {
+	   return err
+	}
+
+	for _, r := range results {
+		log.Println(r.WOFId(), r.WOFName())
+		log.Println(r.URI())
+	}
+	
 	return nil		
      }
 
