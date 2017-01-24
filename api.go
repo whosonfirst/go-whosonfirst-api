@@ -34,3 +34,5 @@ type APIPagination interface {
 	PerPage() int
 	Total() int
 }
+
+type APIResponseCallback func(APIResponse) error

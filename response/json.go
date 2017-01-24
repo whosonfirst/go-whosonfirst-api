@@ -31,7 +31,7 @@ func (p JSONPagination) Total() int {
 }
 
 func (p JSONPagination) String() string {
-	return fmt.Sprintf("total %d page %d/%s (%d per page)", p.Total(), p.Page(), p.Pages(), p.PerPage())
+	return fmt.Sprintf("total %d page %d/%d (%d per page)", p.Total(), p.Page(), p.Pages(), p.PerPage())
 }
 
 type JSONError struct {
@@ -76,6 +76,9 @@ func (rsp JSONResponse) Ok() (bool, api.APIError) {
 	if rsp.Stat() == "ok" {
 		return true, nil
 	}
+
+	// TO DO: support this stuff
+	// {"meta":{"version":1,"status_code":429},"results":{"error":{"type":"QpsExceededError","message":"Queries per second exceeded: Queries exceeded (1 allowed)."}}}
 
 	code := rsp.Get("error.code")
 	msg := rsp.Get("error.message")

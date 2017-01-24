@@ -5,9 +5,11 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/response"
 	"io/ioutil"
-	"log"
+	_ "log"
 	"net/http"
 	"net/url"
+	"strconv"
+	"time"
 )
 
 type HTTPClient struct {
@@ -67,16 +69,14 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 	return rsp, nil
 }
 
-func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Values) error {
+func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Values, callback api.APIResponseCallback) error {
 
 	pages := 0
 	page := 1
 
 	for {
 
-		params.Set("page", string(page))
-
-		log.Println("GO", page, pages)
+		params.Set("page", strconv.Itoa(page))
 
 		rsp, err := client.ExecuteMethod(method, params)
 
@@ -94,7 +94,7 @@ func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Valu
 
 			pg, err := rsp.Pagination()
 
-			log.Println(pg)
+			// log.Println(pg)
 
 			if err != nil {
 				return err
@@ -103,18 +103,19 @@ func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Valu
 			pages = pg.Pages()
 		}
 
-		/*
-			cb_err := callback(rsp)
+		cb_err := callback(rsp)
 
-			if cb_err != nil {
-				return cb_err
-			}
-		*/
+		if cb_err != nil {
+			return cb_err
+		}
 
 		if page >= pages {
-			log.Println("BREAK", page, pages)
 			break
 		}
+
+		// to do: add proper QPS throttling here
+
+		time.Sleep(200 * time.Millisecond)
 
 		page += 1
 	}
