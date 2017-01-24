@@ -1,15 +1,15 @@
 package client
 
 import (
-       "github.com/whosonfirst/go-whosonfirst-api"
-       "github.com/whosonfirst/go-whosonfirst-api/response"       
+	"github.com/whosonfirst/go-whosonfirst-api"
+	"github.com/whosonfirst/go-whosonfirst-api/response"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 )
 
 type HTTPClient struct {
-        api.APIClient     		
+	api.APIClient
 	endpoint api.APIEndpoint
 }
 
@@ -55,7 +55,7 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 	}
 
 	// to do: support other formats...
-	
+
 	rsp, parse_err := response.ParseJSONResponse(http_body)
 
 	if parse_err != nil {

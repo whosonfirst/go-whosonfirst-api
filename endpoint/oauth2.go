@@ -12,7 +12,7 @@ type OAuth2APIEndpoint struct {
 	Scheme string
 	Host   string
 	Path   string
-	Token    string
+	Token  string
 }
 
 func NewOAuth2APIEndpoint(access_token string) (*OAuth2APIEndpoint, error) {
@@ -21,7 +21,7 @@ func NewOAuth2APIEndpoint(access_token string) (*OAuth2APIEndpoint, error) {
 		Scheme: "https",
 		Host:   "",
 		Path:   "",
-		Token:    access_token,
+		Token:  access_token,
 	}
 
 	return &e, nil

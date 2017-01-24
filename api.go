@@ -1,8 +1,8 @@
 package api
 
 import (
-       "net/http"
-       "net/url"
+	"net/http"
+	"net/url"
 )
 
 type APIEndpoint interface {
@@ -11,9 +11,19 @@ type APIEndpoint interface {
 }
 
 type APIClient interface {
-     // please write me
+	ExecuteMethod(string, *url.Values) (APIResponse, error)
+	DefaultArgs() *url.Values
 }
 
 type APIResponse interface {
-     // please write me
+	String() string
+	Stat() string
+	Ok() (bool, APIError)
+	// Get(string) interface{}
+}
+
+type APIError interface {
+	String() string
+	Code() int64
+	Message() string
 }
