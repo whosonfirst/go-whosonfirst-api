@@ -76,7 +76,8 @@ func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Valu
 
 		params.Set("page", string(page))
 
-		log.Println(page, pages, params)
+		log.Println("GO", page, pages)
+
 		rsp, err := client.ExecuteMethod(method, params)
 
 		if err != nil {
@@ -90,11 +91,28 @@ func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Valu
 		}
 
 		if pages == 0 {
-			r := rsp.Get("pages")
-			pages = int(r.Int())
+
+			pg, err := rsp.Pagination()
+
+			log.Println(pg)
+
+			if err != nil {
+				return err
+			}
+
+			pages = pg.Pages()
 		}
 
+		/*
+			cb_err := callback(rsp)
+
+			if cb_err != nil {
+				return cb_err
+			}
+		*/
+
 		if page >= pages {
+			log.Println("BREAK", page, pages)
 			break
 		}
 

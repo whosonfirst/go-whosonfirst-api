@@ -7,6 +7,33 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-api"
 )
 
+type JSONPagination struct {
+	page     int
+	pages    int
+	per_page int
+	total    int
+}
+
+func (p JSONPagination) Page() int {
+	return p.page
+}
+
+func (p JSONPagination) Pages() int {
+	return p.pages
+}
+
+func (p JSONPagination) PerPage() int {
+	return p.per_page
+}
+
+func (p JSONPagination) Total() int {
+	return p.total
+}
+
+func (p JSONPagination) String() string {
+	return fmt.Sprintf("total %d page %d/%s (%d per page)", p.Total(), p.Page(), p.Pages(), p.PerPage())
+}
+
 type JSONError struct {
 	api.APIError
 	code    int64
@@ -59,6 +86,25 @@ func (rsp JSONResponse) Ok() (bool, api.APIError) {
 	}
 
 	return false, &err
+}
+
+func (rsp JSONResponse) Pagination() (api.APIPagination, error) {
+
+	// to do : something something something that would trigger error
+
+	page := rsp.Get("page")
+	pages := rsp.Get("pages")
+	per_page := rsp.Get("per_page")
+	total := rsp.Get("total")
+
+	pg := JSONPagination{
+		page:     int(page.Int()),
+		pages:    int(pages.Int()),
+		per_page: int(per_page.Int()),
+		total:    int(total.Int()),
+	}
+
+	return &pg, nil
 }
 
 func ParseJSONResponse(raw []byte) (*JSONResponse, error) {
