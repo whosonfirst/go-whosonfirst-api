@@ -52,6 +52,7 @@ type APIResultWriter interface {
 	Write([]byte) (int, error)
 	WriteString(string) (int, error)
 	WriteResult(APIResult) (int, error)
+	Close() error
 }
 
 type APIResponseCallback func(APIResponse) error
