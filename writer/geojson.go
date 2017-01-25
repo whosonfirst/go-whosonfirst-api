@@ -8,6 +8,7 @@ import (
 )
 
 type GeoJSONWriter struct {
+	api.APIResultWriter
 	features int
 	mu       *sync.Mutex
 }
