@@ -11,24 +11,11 @@ import (
 	"strings"
 )
 
-// please rename me...
-
-type arrayFlags []string
-
-func (i *arrayFlags) String() string {
-	return "my string representation"
-}
-
-func (i *arrayFlags) Set(value string) error {
-	*i = append(*i, value)
-	return nil
-}
-
-var myFlags arrayFlags
+var api_params api.APIParams
 
 func main() {
 
-	flag.Var(&myFlags, "F", "Some description for this param.")
+	flag.Var(&api_params, "param", "Some description for this param.")
 
 	var api_key = flag.String("api-key", "", "A valid Mapzen API key")
 
@@ -48,7 +35,7 @@ func main() {
 
 	args := c.DefaultArgs()
 
-	for _, str_pair := range myFlags {
+	for _, str_pair := range api_params {
 
 		pair := strings.Split(str_pair, "=")
 

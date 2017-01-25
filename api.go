@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 type APIEndpoint interface {
@@ -56,3 +57,14 @@ type APIResultWriter interface {
 }
 
 type APIResponseCallback func(APIResponse) error
+
+type APIParams []string
+
+func (p *APIParams) String() string {
+	return strings.Join(*p, "\n")
+}
+
+func (p *APIParams) Set(value string) error {
+	*p = append(*p, value)
+	return nil
+}
