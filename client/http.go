@@ -9,19 +9,35 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	_ "sync/atomic"
 	"time"
 )
 
 type HTTPClient struct {
 	api.APIClient
 	endpoint api.APIEndpoint
+	qpslimit int
+	qpmlimit int
+	qphlimit int
+	qpscount int
+	qpmcount int
+	qphcount int
 }
 
 func NewHTTPClient(endpoint api.APIEndpoint) (*HTTPClient, error) {
 
 	cl := HTTPClient{
 		endpoint: endpoint,
+		qpslimit: 6,
+		qpmlimit: 30,
+		qphlimit: 1000,
+		qpscount: 0,
+		qpmcount: 0,
+		qphcount: 0,
 	}
+
+	// TO DO: set up a channel/throttle to block calls to ExecuteMethod
+	// from exceeding QPS/M/H (20170125/thisisaaronland)
 
 	return &cl, nil
 }
@@ -32,6 +48,12 @@ func (client *HTTPClient) DefaultArgs() *url.Values {
 }
 
 func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.APIResponse, error) {
+
+	format := params.Get("format")
+
+	if format != "" && format != "json" {
+		return nil, errors.New("JSON is the only output format currently supported")
+	}
 
 	params.Set("method", method)
 
@@ -93,8 +115,6 @@ func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Valu
 		if pages == 0 {
 
 			pg, err := rsp.Pagination()
-
-			// log.Println(pg)
 
 			if err != nil {
 				return err
