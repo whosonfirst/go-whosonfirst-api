@@ -34,7 +34,7 @@ func main() {
 
 	var stdout = flag.Bool("stdout", false, "")
 	var geojson = flag.Bool("geojson", false, "")
-	// var paginated = flag.Bool("paginated", false, "")
+	var paginated = flag.Bool("paginated", false, "")
 
 	var tts_speak = flag.Bool("tts", false, "Output integers to a text-to-speak engine.")
 	var tts_engine = flag.String("tts-engine", "", "A valid go-writer-tts text-to-speak engine. Valid options are: osx.")
@@ -125,23 +125,20 @@ func main() {
 		return nil
 	}
 
-	err := c.ExecuteMethodPaginated(method, args, cb)
+	var err error
 
-	/*
-		var err error
+	if *paginated {
 
-		if *paginated {
+		err = c.ExecuteMethodPaginated(method, args, cb)
 
-		err := c.ExecuteMethodPaginated(method, args, cb)
+	} else {
 
-		} else {
-
-		err := c.ExecuteMethodWithCallback(method, args, cb)
-		}
-	*/
+		err = c.ExecuteMethodWithCallback(method, args, cb)
+	}
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	os.Exit(0)
 }
