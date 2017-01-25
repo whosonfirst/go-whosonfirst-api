@@ -21,6 +21,7 @@ func main() {
 
 	var stdout = flag.Bool("stdout", false, "Write API results to STDOUT")
 	var geojson = flag.Bool("geojson", false, "Transform API results to source GeoJSON for each Who's On First place.")
+	var raw = flag.Bool("raw", false, "Dump raw Who's On First API responses.")
 	var paginated = flag.Bool("paginated", false, "Automatically paginate API results.")
 
 	var tts_speak = flag.Bool("tts", false, "Output integers to a text-to-speak engine.")
@@ -89,7 +90,7 @@ func main() {
 
 	multi := writer.NewAPIResultMultiWriter(writers...)
 
-	if len(writers) == 0 {
+	if len(writers) == 0 && !*raw {
 		log.Fatal("You forgot to specify an output source")
 	}
 
@@ -114,6 +115,13 @@ func main() {
 		}
 
 		return nil
+	}
+
+	if *raw {
+		cb = func(rsp api.APIResponse) error {
+			_, err := os.Stdout.Write(rsp.Raw())
+			return err
+		}
 	}
 
 	var err error
