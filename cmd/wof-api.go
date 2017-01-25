@@ -15,16 +15,16 @@ var api_params api.APIParams
 
 func main() {
 
-	flag.Var(&api_params, "param", "Some description for this param.")
+	flag.Var(&api_params, "param", "One or more Who's On First API query=value parameters.")
 
 	var api_key = flag.String("api-key", "", "A valid Mapzen API key")
 
-	var stdout = flag.Bool("stdout", false, "")
-	var geojson = flag.Bool("geojson", false, "")
-	var paginated = flag.Bool("paginated", false, "")
+	var stdout = flag.Bool("stdout", false, "Write API results to STDOUT")
+	var geojson = flag.Bool("geojson", false, "Transform API results to source GeoJSON for each Who's On First place.")
+	var paginated = flag.Bool("paginated", false, "Automatically paginate API results.")
 
 	var tts_speak = flag.Bool("tts", false, "Output integers to a text-to-speak engine.")
-	var tts_engine = flag.String("tts-engine", "", "A valid go-writer-tts text-to-speak engine. Valid options are: osx.")
+	var tts_engine = flag.String("tts-engine", "", "A valid go-writer-tts text-to-speak engine. Valid options are: osx, polly.")
 
 	flag.Parse()
 
@@ -97,7 +97,9 @@ func main() {
 		multi.Close()
 	}()
 
-	cb := func(rsp api.APIResponse) error {
+	var cb api.APIResponseCallback
+
+	cb = func(rsp api.APIResponse) error {
 
 		results, err := rsp.Results()
 
@@ -115,11 +117,9 @@ func main() {
 	var err error
 
 	if *paginated {
-
 		err = c.ExecuteMethodPaginated(method, args, cb)
 
 	} else {
-
 		err = c.ExecuteMethodWithCallback(method, args, cb)
 	}
 
