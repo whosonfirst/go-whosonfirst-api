@@ -26,11 +26,23 @@ func main() {
 	args := c.DefaultArgs()
 	args.Set(*field, *query)
 
-	wr, _ := writer.NewGeoJSONWriter(os.Stdout)
+	ts, err := writer.NewTTSWriter("polly")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+	wr, err := writer.NewGeoJSONWriter(os.Stdout)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	defer wr.Close()
 
 	writers := []api.APIResultWriter{
 		wr,
+		ts,			
 	}
 
 	multi := writer.NewAPIResultMultiWriter(writers...)
@@ -50,7 +62,7 @@ func main() {
 		return nil
 	}
 
-	err := c.ExecuteMethodPaginated(method, args, cb)
+	err = c.ExecuteMethodPaginated(method, args, cb)
 
 	if err != nil {
 		log.Fatal(err)
