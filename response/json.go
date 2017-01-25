@@ -123,8 +123,6 @@ func (rsp JSONResponse) get(path string) gjson.Result {
 
 func (rsp JSONResponse) Pagination() (api.APIPagination, error) {
 
-	// to do : something something something that would trigger error
-
 	page := rsp.get("page")
 
 	if !page.Exists() {

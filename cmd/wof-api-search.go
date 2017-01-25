@@ -5,6 +5,7 @@ import (
        "github.com/whosonfirst/go-whosonfirst-api"
        "github.com/whosonfirst/go-whosonfirst-api/client"
        "github.com/whosonfirst/go-whosonfirst-api/endpoint"
+       "github.com/whosonfirst/go-whosonfirst-api/writer"              
        "log"
 )
 
@@ -24,6 +25,9 @@ func main () {
      args := c.DefaultArgs()
      args.Set(*field, *query)
 
+     wr, _ := writer.NewGeoJSONWriter()
+     defer wr.Close()
+     
      cb := func(rsp api.APIResponse) error {
 
      	results, err := rsp.Results()
@@ -33,8 +37,8 @@ func main () {
 	}
 
 	for _, r := range results {
-		log.Println(r.WOFId(), r.WOFName())
-		log.Println(r.URI())
+
+		wr.WriteResult(r)
 	}
 	
 	return nil		

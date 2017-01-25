@@ -48,4 +48,9 @@ type APIPagination interface {
 	Total() int
 }
 
+type APIResultWriter interface {
+	Write([]byte) (int, error)
+	WriteResult(APIResult) (int, error)
+}
+
 type APIResponseCallback func(APIResponse) error

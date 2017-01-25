@@ -16,6 +16,10 @@ self:   prep
 	cp response/*.go src/github.com/whosonfirst/go-whosonfirst-api/response/
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/result
 	cp result/*.go src/github.com/whosonfirst/go-whosonfirst-api/result/
+	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/util
+	cp util/*.go src/github.com/whosonfirst/go-whosonfirst-api/util/
+	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/writer
+	cp writer/*.go src/github.com/whosonfirst/go-whosonfirst-api/writer/
 	cp api.go src/github.com/whosonfirst/go-whosonfirst-api/
 	if test ! -d src; then mkdir src; fi
 	cp -r vendor/src/* src/
@@ -41,6 +45,8 @@ fmt:
 	go fmt endpoint/*.go
 	go fmt response/*.go
 	go fmt result/*.go
+	go fmt util/*.go
+	go fmt writer/*.go
 
 bin:	self
 	@GOPATH=$(shell pwd) go build -o bin/wof-api-search cmd/wof-api-search.go
