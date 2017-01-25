@@ -19,6 +19,7 @@ build:	fmt bin
 
 deps:   rmdeps
 	@GOPATH=$(GOPATH) go get -u "github.com/everdev/mack"
+	@GOPATH=$(GOPATH) go get -u "github.com/aws/aws-sdk-go"
 
 vendor-deps: deps
 	if test ! -d vendor; then mkdir vendor; fi

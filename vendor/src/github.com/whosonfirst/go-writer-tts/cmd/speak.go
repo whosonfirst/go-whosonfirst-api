@@ -13,6 +13,13 @@ import (
 func main() {
 
 	var engine = flag.String("engine", "", "Valid options are: osx")
+
+	/*
+	var polly_format = flag.String("polly-format", "mp3", "...")
+	var polly_filename = flag.String("polly-filename", "polly", "...")	
+	var polly_voice = flag.String("polly-voice", "Russell", "...")
+	*/
+	
 	var stdout = flag.Bool("stdout", false, "")
 	
 	flag.Parse()
@@ -23,11 +30,19 @@ func main() {
 	}
 
 	speaker, err := tts.NewSpeakerForEngine(*engine)
-
+	
 	if err != nil {
 	   log.Fatal(err)
 	}
-
+	
+	/*
+	if *engine == "polly" {
+		speaker.OutputFormat(*polly_format)
+		speaker.VoiceId(*polly_voice)
+		speaker.Filename(*polly_filename)
+	}
+	*/
+	
 	writers := []io.Writer{
 		speaker,
 	}
@@ -45,9 +60,15 @@ func main() {
 
 		for scanner.Scan() {
 			msg := scanner.Text()
+
+			if msg == "." {
+				break
+			}
+			
 			writer.WriteString(msg + "\n")
 			writer.Flush()					       
   		}
+		
 	} else {
 
 		msg := strings.Join(args, " ")
@@ -55,5 +76,7 @@ func main() {
 		writer.Flush()					       
 	}
 
+	speaker.Close()
+	
 	os.Exit(0)
 }

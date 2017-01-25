@@ -16,6 +16,11 @@ func main() {
 	var field = flag.String("field", "q", "...")
 	var query = flag.String("query", "", "...")
 
+	var geojson = flag.Bool("geojson", false, "")
+
+	var tts_speak = flag.Bool("tts", false, "Output integers to a text-to-speak engine.")
+	var tts_engine = flag.String("tts-engine", "", "A valid go-writer-tts text-to-speak engine. Valid options are: osx.")
+
 	flag.Parse()
 
 	e, _ := endpoint.NewMapzenAPIEndpoint(*api_key)
@@ -26,23 +31,31 @@ func main() {
 	args := c.DefaultArgs()
 	args.Set(*field, *query)
 
-	ts, err := writer.NewTTSWriter("polly")
+	writers := make([]api.APIResultWriter, 0)
 
-	if err != nil {
-		log.Fatal(err)
+	if *tts_speak {
+
+		ts, err := writer.NewTTSWriter(*tts_engine)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		writers = append(writers, ts)
+
+		defer func() { ts.Close() }()
 	}
-	
-	wr, err := writer.NewGeoJSONWriter(os.Stdout)
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	if *geojson {
+		wr, err := writer.NewGeoJSONWriter(os.Stdout)
 
-	defer wr.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	writers := []api.APIResultWriter{
-		wr,
-		ts,			
+		writers = append(writers, wr)
+
+		defer func() { wr.Close() }()
 	}
 
 	multi := writer.NewAPIResultMultiWriter(writers...)
@@ -62,9 +75,10 @@ func main() {
 		return nil
 	}
 
-	err = c.ExecuteMethodPaginated(method, args, cb)
+	err := c.ExecuteMethodPaginated(method, args, cb)
 
 	if err != nil {
 		log.Fatal(err)
 	}
+
 }
