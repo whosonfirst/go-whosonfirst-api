@@ -1,5 +1,8 @@
 package writer
 
+// If this looks familiar it's because it's a copied-and-slightly-modified
+// version of the source for io.MultiWriter (20170125/thisisaaronland)
+
 import (
 	"github.com/whosonfirst/go-whosonfirst-api"
 )

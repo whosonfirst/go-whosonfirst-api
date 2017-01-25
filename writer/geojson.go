@@ -1,9 +1,13 @@
 package writer
 
 import (
+	"bufio"
+	"bytes"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/util"
 	"io"
+	_ "log"
+	"strings"
 	"sync"
 )
 
@@ -18,19 +22,18 @@ func NewGeoJSONWriter(w io.Writer) (*GeoJSONWriter, error) {
 
 	mu := new(sync.Mutex)
 
-	gj := GeoJSONWriter{
+	wr := GeoJSONWriter{
 		features: 0,
 		mu:       mu,
 		writer:   w,
 	}
 
-	gj.Write([]byte(`{"type":"FeatureCollection", "features":[`))
-	gj.features = 0
+	wr.Write([]byte(`{"type":"FeatureCollection", "features":[`))
 
-	return &gj, nil
+	return &wr, nil
 }
 
-func (w *GeoJSONWriter) WriteResult(r api.APIResult) (int, error) {
+func (wr *GeoJSONWriter) WriteResult(r api.APIResult) (int, error) {
 
 	json, err := util.APIResultToGeoJSON(r)
 
@@ -38,30 +41,47 @@ func (w *GeoJSONWriter) WriteResult(r api.APIResult) (int, error) {
 		return 0, err
 	}
 
-	return w.Write(json)
-}
+	wr.mu.Lock()
+	defer wr.mu.Unlock()
 
-func (w *GeoJSONWriter) Write(p []byte) (int, error) {
-
-	w.mu.Lock()
-	defer w.mu.Unlock()
-
-	if w.features > 0 {
-		w.writer.Write([]byte(`,`))
+	if wr.features > 0 {
+		wr.writer.Write([]byte(`,`))
 	}
 
-	i, err := w.writer.Write(p)
+	// sudo move me in to a separate package or something
+	// (20170125/thisisaaronland)
 
-	if err == nil {
+	buf := bytes.NewBuffer(json)
+	scanner := bufio.NewScanner(buf)
 
-		w.features += 1
+	n := 0
+
+	for scanner.Scan() {
+
+		str := scanner.Text()
+		str = strings.Trim(str, "\r\n")
+		str = strings.Trim(str, " ")
+
+		i, err := wr.Write([]byte(str))
+
+		if err != nil {
+			return n, err
+		}
+
+		n += i
 	}
 
-	return i, err
+	// end of sudo move me	in to a	separate package
+
+	wr.features += 1
+	return n, nil
 }
 
-func (w *GeoJSONWriter) Close() error {
-	w.features = 0
-	w.Write([]byte(`]}`))
-	return nil
+func (wr *GeoJSONWriter) Write(p []byte) (int, error) {
+	return wr.writer.Write(p)
+}
+
+func (wr *GeoJSONWriter) Close() error {
+	_, err := wr.Write([]byte(`]}`))
+	return err
 }
