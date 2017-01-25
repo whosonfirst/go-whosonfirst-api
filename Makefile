@@ -42,6 +42,7 @@ vendor-deps: rmdeps deps
 fmt:
 	go fmt api.go
 	go fmt client/*.go
+	go fmt cmd/*.go
 	go fmt endpoint/*.go
 	go fmt response/*.go
 	go fmt result/*.go

@@ -3,7 +3,7 @@ package writer
 import (
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/util"
-	"os"
+	"io"
 	"sync"
 )
 
@@ -11,21 +11,23 @@ type GeoJSONWriter struct {
 	api.APIResultWriter
 	features int
 	mu       *sync.Mutex
+	writer   io.Writer
 }
 
-func NewGeoJSONWriter() (*GeoJSONWriter, error) {
+func NewGeoJSONWriter(w io.Writer) (*GeoJSONWriter, error) {
 
 	mu := new(sync.Mutex)
 
-	w := GeoJSONWriter{
+	gj := GeoJSONWriter{
 		features: 0,
 		mu:       mu,
+		writer:   w,
 	}
 
-	w.Write([]byte(`{"type":"FeatureCollection", "features":[`))
-	w.features = 0
+	gj.Write([]byte(`{"type":"FeatureCollection", "features":[`))
+	gj.features = 0
 
-	return &w, nil
+	return &gj, nil
 }
 
 func (w *GeoJSONWriter) WriteResult(r api.APIResult) (int, error) {
@@ -45,10 +47,10 @@ func (w *GeoJSONWriter) Write(p []byte) (int, error) {
 	defer w.mu.Unlock()
 
 	if w.features > 0 {
-		os.Stdout.Write([]byte(`,`))
+		w.writer.Write([]byte(`,`))
 	}
 
-	i, err := os.Stdout.Write(p)
+	i, err := w.writer.Write(p)
 
 	if err == nil {
 

@@ -1,59 +1,58 @@
 package main
 
 import (
-       "flag"
-       "github.com/whosonfirst/go-whosonfirst-api"
-       "github.com/whosonfirst/go-whosonfirst-api/client"
-       "github.com/whosonfirst/go-whosonfirst-api/endpoint"
-       "github.com/whosonfirst/go-whosonfirst-api/writer"
-       "log"
-       _ "os"	
+	"flag"
+	"github.com/whosonfirst/go-whosonfirst-api"
+	"github.com/whosonfirst/go-whosonfirst-api/client"
+	"github.com/whosonfirst/go-whosonfirst-api/endpoint"
+	"github.com/whosonfirst/go-whosonfirst-api/writer"
+	"log"
+	"os"
 )
 
-func main () {
+func main() {
 
-     var api_key = flag.String("api-key", "", "A valid Mapzen API key")
-     var field = flag.String("field", "q", "...")
-     var query = flag.String("query", "", "...")     
+	var api_key = flag.String("api-key", "", "A valid Mapzen API key")
+	var field = flag.String("field", "q", "...")
+	var query = flag.String("query", "", "...")
 
-     flag.Parse()
-     
-     e, _ := endpoint.NewMapzenAPIEndpoint(*api_key)
-     c, _ := client.NewHTTPClient(e)
+	flag.Parse()
 
-     method := "whosonfirst.places.search"
-     
-     args := c.DefaultArgs()
-     args.Set(*field, *query)
+	e, _ := endpoint.NewMapzenAPIEndpoint(*api_key)
+	c, _ := client.NewHTTPClient(e)
 
-     wr, _ := writer.NewGeoJSONWriter()
-     defer wr.Close()
+	method := "whosonfirst.places.search"
 
-     writers := []api.APIResultWriter{
-	wr,
-     }
+	args := c.DefaultArgs()
+	args.Set(*field, *query)
 
-     multi := writer.NewAPIResultMultiWriter(writers...)
+	wr, _ := writer.NewGeoJSONWriter(os.Stdout)
+	defer wr.Close()
 
-     cb := func(rsp api.APIResponse) error {
+	writers := []api.APIResultWriter{
+		wr,
+	}
 
-     	results, err := rsp.Results()
+	multi := writer.NewAPIResultMultiWriter(writers...)
+
+	cb := func(rsp api.APIResponse) error {
+
+		results, err := rsp.Results()
+
+		if err != nil {
+			return err
+		}
+
+		for _, r := range results {
+			multi.Write(r)
+		}
+
+		return nil
+	}
+
+	err := c.ExecuteMethodPaginated(method, args, cb)
 
 	if err != nil {
-	   return err
+		log.Fatal(err)
 	}
-
-	for _, r := range results {
-
-		multi.Write(r)
-	}
-	
-	return nil		
-     }
-
-     err := c.ExecuteMethodPaginated(method, args, cb)
-
-     if err != nil {
-     	log.Fatal(err)
-     }     
 }
