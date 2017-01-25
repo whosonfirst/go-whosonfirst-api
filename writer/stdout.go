@@ -27,6 +27,5 @@ func (wr *StdoutWriter) Write(p []byte) (int, error) {
 }
 
 func (wr *StdoutWriter) Close() error {
-	os.Stdout.Write([]byte("CLOSING TIME"))
 	return nil
 }
