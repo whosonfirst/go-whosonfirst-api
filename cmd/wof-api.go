@@ -93,9 +93,11 @@ func main() {
 		log.Fatal("You forgot to specify an output source")
 	}
 
-	defer func() {
-		multi.Close()
-	}()
+	/*
+		defer func() {
+			multi.Close()
+		}()
+	*/
 
 	var cb api.APIResponseCallback
 
@@ -127,5 +129,9 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// I don't really understand why the defer func() stuff above
+	// to do this doesn't work... (20170125/thisisaaronland)
+
+	multi.Close()
 	os.Exit(0)
 }

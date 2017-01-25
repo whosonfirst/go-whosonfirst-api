@@ -5,6 +5,7 @@ package writer
 
 import (
 	"github.com/whosonfirst/go-whosonfirst-api"
+	_ "log"
 )
 
 type APIResultMultiWriter struct {
