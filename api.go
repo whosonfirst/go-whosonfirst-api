@@ -50,6 +50,7 @@ type APIPagination interface {
 
 type APIResultWriter interface {
 	Write([]byte) (int, error)
+	WriteString(string) (int, error)
 	WriteResult(APIResult) (int, error)
 }
 

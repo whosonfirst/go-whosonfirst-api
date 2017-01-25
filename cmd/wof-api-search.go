@@ -5,8 +5,9 @@ import (
        "github.com/whosonfirst/go-whosonfirst-api"
        "github.com/whosonfirst/go-whosonfirst-api/client"
        "github.com/whosonfirst/go-whosonfirst-api/endpoint"
-       "github.com/whosonfirst/go-whosonfirst-api/writer"              
+       "github.com/whosonfirst/go-whosonfirst-api/writer"
        "log"
+       _ "os"	
 )
 
 func main () {
@@ -27,7 +28,13 @@ func main () {
 
      wr, _ := writer.NewGeoJSONWriter()
      defer wr.Close()
-     
+
+     writers := []api.APIResultWriter{
+	wr,
+     }
+
+     multi := writer.NewAPIResultMultiWriter(writers...)
+
      cb := func(rsp api.APIResponse) error {
 
      	results, err := rsp.Results()
@@ -38,7 +45,7 @@ func main () {
 
 	for _, r := range results {
 
-		wr.WriteResult(r)
+		multi.Write(r)
 	}
 	
 	return nil		
