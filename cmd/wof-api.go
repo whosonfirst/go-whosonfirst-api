@@ -8,16 +8,13 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-api/writer"
 	"log"
 	"os"
-	"strings"
 )
-
-var api_params api.APIParams
 
 func main() {
 
-	flag.Var(&api_params, "param", "One or more Who's On First API query=value parameters.")
+	var api_params api.APIParams
 
-	var api_key = flag.String("api-key", "", "A valid Mapzen API key")
+	flag.Var(&api_params, "param", "One or more Who's On First API query=value parameters.")
 
 	var stdout = flag.Bool("stdout", false, "Write API results to STDOUT")
 	var geojson = flag.Bool("geojson", false, "Transform API results to source GeoJSON for each Who's On First place.")
@@ -29,28 +26,17 @@ func main() {
 
 	flag.Parse()
 
-	e, _ := endpoint.NewMapzenAPIEndpoint(*api_key)
-	c, _ := client.NewHTTPClient(e)
+	args := api_params.ToArgs()
 
-	var method string
-
-	args := c.DefaultArgs()
-
-	for _, str_pair := range api_params {
-
-		pair := strings.Split(str_pair, "=")
-
-		if pair[0] == "method" {
-			method = pair[1]
-			continue
-		}
-
-		args.Set(pair[0], pair[1])
-	}
+	api_key := args.Get("api_key")
+	method := args.Get("method")
 
 	if method == "" {
 		log.Fatal("You forgot to specify a method")
 	}
+
+	e, _ := endpoint.NewMapzenAPIEndpoint(api_key)
+	c, _ := client.NewHTTPClient(e)
 
 	writers := make([]api.APIResultWriter, 0)
 

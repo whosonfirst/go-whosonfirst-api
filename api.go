@@ -68,3 +68,15 @@ func (p *APIParams) Set(value string) error {
 	*p = append(*p, value)
 	return nil
 }
+
+func (p *APIParams) ToArgs() *url.Values {
+
+	args := url.Values{}
+
+	for _, str_pair := range *p {
+		pair := strings.Split(str_pair, "=")
+		args.Set(pair[0], pair[1])
+	}
+
+	return &args
+}
