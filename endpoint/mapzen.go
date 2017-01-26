@@ -27,6 +27,21 @@ func NewMapzenAPIEndpoint(key string) (*MapzenAPIEndpoint, error) {
 	return &e, nil
 }
 
+func (e *MapzenAPIEndpoint) SetEndpoint(custom string) error {
+
+	parsed, err := url.Parse(custom)
+
+	if err != nil {
+		return err
+	}
+
+	e.Scheme = parsed.Scheme
+	e.Host = parsed.Host
+	e.Path = parsed.Path
+
+	return nil
+}
+
 func (e *MapzenAPIEndpoint) URL() (*url.URL, error) {
 
 	raw := fmt.Sprintf("%s://%s/%s", e.Scheme, e.Host, e.Path)

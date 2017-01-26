@@ -9,6 +9,7 @@ import (
 type APIEndpoint interface {
 	URL() (*url.URL, error)
 	NewRequest(*url.Values) (*http.Request, error)
+	SetEndpoint(string) error
 }
 
 type APIClient interface {

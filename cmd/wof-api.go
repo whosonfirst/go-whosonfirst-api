@@ -24,6 +24,8 @@ func main() {
 	var tts_speak = flag.Bool("tts", false, "Output integers to a text-to-speak engine.")
 	var tts_engine = flag.String("tts-engine", "", "A valid go-writer-tts text-to-speak engine. Valid options are: osx, polly.")
 
+	var custom_endpoint = flag.String("endpoint", "", "")
+
 	flag.Parse()
 
 	args := api_params.ToArgs()
@@ -36,6 +38,17 @@ func main() {
 	}
 
 	e, _ := endpoint.NewMapzenAPIEndpoint(api_key)
+
+	if *custom_endpoint != "" {
+
+		err := e.SetEndpoint(*custom_endpoint)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	}
+
 	c, _ := client.NewHTTPClient(e)
 
 	writers := make([]api.APIResultWriter, 0)
