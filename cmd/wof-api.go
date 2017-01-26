@@ -21,10 +21,12 @@ func main() {
 	var raw = flag.Bool("raw", false, "Dump raw Who's On First API responses.")
 	var paginated = flag.Bool("paginated", false, "Automatically paginate API results.")
 
+	var output = flag.String("output", "", "...")
+	
 	var tts_speak = flag.Bool("tts", false, "Output integers to a text-to-speak engine.")
 	var tts_engine = flag.String("tts-engine", "", "A valid go-writer-tts text-to-speak engine. Valid options are: osx, polly.")
 
-	var custom_endpoint = flag.String("endpoint", "", "")
+	var custom_endpoint = flag.String("endpoint", "", "...")
 
 	flag.Parse()
 
@@ -66,8 +68,20 @@ func main() {
 
 	if *geojson {
 
-		// please give me a better output source...
-		wr, err := writer.NewGeoJSONWriter(os.Stdout)
+		dest := os.Stdout
+
+		if *output != "" {
+
+			f, err := os.OpenFile(*output, os.O_RDWR|os.O_CREATE, 0644)
+
+			if err != nil {
+			       log.Fatal(err)
+			}
+
+			dest = f
+		}
+		
+		wr, err := writer.NewGeoJSONWriter(dest)
 
 		if err != nil {
 			log.Fatal(err)
@@ -93,6 +107,8 @@ func main() {
 		log.Fatal("You forgot to specify an output source")
 	}
 
+	// why doesn't this work? see below... (20170125/thisisaaronland)
+	
 	/*
 		defer func() {
 			multi.Close()
@@ -117,6 +133,7 @@ func main() {
 	}
 
 	if *raw {
+	
 		cb = func(rsp api.APIResponse) error {
 			_, err := os.Stdout.Write(rsp.Raw())
 			return err
