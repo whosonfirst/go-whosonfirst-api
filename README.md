@@ -18,13 +18,15 @@ All of this package's dependencies are bundled with the code in the `vendor` dir
 
 ## Usage
 
+_Note that all error handling in the examples below has been removed for the sake of brevity._
+
 ### Simple
 
 ```
 import (
 	"github.com/whosonfirst/go-whosonfirst-api/client"
 	"github.com/whosonfirst/go-whosonfirst-api/endpoint"
-	"log"
+	"os"
 )
 
 api_key := "mapzen-xxxxx"
@@ -35,14 +37,41 @@ api_client, _ := client.NewHTTPClient(api_endpoint)
 method := "whosonfirst.places.search"
 	
 args := api_client.DefaultArgs()
-args.Set("query", "Poutine")
+args.Set("query", "poutine")
 args.Set("placetype", "venue")	
 	
 rsp, _ := c.ExecuteMethod(method, args)
-log.Println(rsp.Raw())
+os.Stdout.Write(rsp.Raw())
 ```
 
-_Note that error handling has been left out for the sake of brevity._
+### Paginated
+
+```
+import (
+	"github.com/whosonfirst/go-whosonfirst-api/client"
+	"github.com/whosonfirst/go-whosonfirst-api/endpoint"
+	"os"
+)
+
+api_key := "mapzen-xxxxx"
+	
+api_endpoint, _ := endpoint.NewMapzenAPIEndpoint(api_key)
+api_client, _ := client.NewHTTPClient(api_endpoint)
+
+method := "whosonfirst.places.search"
+	
+args := api_client.DefaultArgs()
+args.Set("query", "beer")
+args.Set("placetype", "venue")
+args.Set("locality_id", "101748417")
+
+cb := func(rsp api.APIResponse) error {
+	_, err := os.Stdout.Write(rsp.Raw())
+	return err
+}
+
+c.ExecuteMethodPaginated(method, args, cb)
+```
 
 ## Tools
 
