@@ -27,7 +27,7 @@ func NewOAuth2APIEndpoint(access_token string) (*OAuth2APIEndpoint, error) {
 	return &e, nil
 }
 
-func (e *MapzenAPIEndpoint) SetEndpoint(custom string) error {
+func (e *OAuth2APIEndpoint) SetEndpoint(custom string) error {
 
 	parsed, err := url.Parse(custom)
 

@@ -45,33 +45,44 @@ func (wr *GeoJSONWriter) WriteResult(r api.APIResult) (int, error) {
 	defer wr.mu.Unlock()
 
 	if wr.features > 0 {
-		wr.writer.Write([]byte(`,`))
+		wr.Write([]byte(`,`))
 	}
 
-	// sudo move me in to a separate package or something
-	// (20170125/thisisaaronland)
+	n, err := wr.Write(json)
 
-	buf := bytes.NewBuffer(json)
-	scanner := bufio.NewScanner(buf)
+	if err != nil {
+		return n, err
+	}
 
-	n := 0
+	trim := false
 
-	for scanner.Scan() {
+	if trim {
 
-		str := scanner.Text()
-		str = strings.Trim(str, "\r\n")
-		str = strings.Trim(str, " ")
+		// sudo move me in to a separate package or something
+		// (20170125/thisisaaronland)
 
-		i, err := wr.Write([]byte(str))
+		buf := bytes.NewBuffer(json)
+		scanner := bufio.NewScanner(buf)
 
-		if err != nil {
-			return n, err
+		n := 0
+
+		for scanner.Scan() {
+
+			str := scanner.Text()
+			str = strings.Trim(str, "\r\n")
+			str = strings.Trim(str, " ")
+
+			i, err := wr.Write([]byte(str))
+
+			if err != nil {
+				return n, err
+			}
+
+			n += i
 		}
 
-		n += i
+		// end of sudo move me	in to a	separate package
 	}
-
-	// end of sudo move me	in to a	separate package
 
 	wr.features += 1
 	return n, nil
