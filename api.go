@@ -31,6 +31,14 @@ type APIError interface {
 	Message() string
 }
 
+type APIPagination interface {
+	String() string
+	Pages() int
+	Page() int
+	PerPage() int
+	Total() int
+}
+
 type APIResult interface {
 	WOFId() int64
 	WOFParentId() int64
@@ -40,14 +48,6 @@ type APIResult interface {
 	WOFRepo() string
 	Path() string
 	URI() string
-}
-
-type APIPagination interface {
-	String() string
-	Pages() int
-	Page() int
-	PerPage() int
-	Total() int
 }
 
 type APIResultWriter interface {

@@ -18,7 +18,7 @@ func NewStdoutWriter() (*StdoutWriter, error) {
 
 func (wr *StdoutWriter) WriteResult(r api.APIResult) (int, error) {
 
-	text := fmt.Sprintf("%s is a %s with Who's On First ID %d\n", r.WOFName(), r.WOFPlacetype(), r.WOFId())
+	text := fmt.Sprintf("%d %s %s\n", r.WOFId(), r.WOFPlacetype(), r.WOFName())
 	return wr.Write([]byte(text))
 }
 

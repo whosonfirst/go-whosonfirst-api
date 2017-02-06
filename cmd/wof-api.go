@@ -22,7 +22,7 @@ func main() {
 	var paginated = flag.Bool("paginated", false, "Automatically paginate API results.")
 
 	var output = flag.String("output", "", "...")
-	
+
 	var tts_speak = flag.Bool("tts", false, "Output integers to a text-to-speak engine.")
 	var tts_engine = flag.String("tts-engine", "", "A valid go-writer-tts text-to-speak engine. Valid options are: osx, polly.")
 
@@ -75,12 +75,12 @@ func main() {
 			f, err := os.OpenFile(*output, os.O_RDWR|os.O_CREATE, 0644)
 
 			if err != nil {
-			       log.Fatal(err)
+				log.Fatal(err)
 			}
 
 			dest = f
 		}
-		
+
 		wr, err := writer.NewGeoJSONWriter(dest)
 
 		if err != nil {
@@ -108,7 +108,7 @@ func main() {
 	}
 
 	// why doesn't this work? see below... (20170125/thisisaaronland)
-	
+
 	/*
 		defer func() {
 			multi.Close()
@@ -133,7 +133,7 @@ func main() {
 	}
 
 	if *raw {
-	
+
 		cb = func(rsp api.APIResponse) error {
 			_, err := os.Stdout.Write(rsp.Raw())
 			return err
