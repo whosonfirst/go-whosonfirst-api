@@ -29,7 +29,7 @@ import (
 	"os"
 )
 
-api_key := "mapzen-xxxxx"
+api_key := "mapzen-xxxxxxx"
 	
 api_endpoint, _ := endpoint.NewMapzenAPIEndpoint(api_key)
 api_client, _ := client.NewHTTPClient(api_endpoint)
@@ -53,7 +53,7 @@ import (
 	"os"
 )
 
-api_key := "mapzen-xxxxx"
+api_key := "mapzen-xxxxxxx"
 	
 api_endpoint, _ := endpoint.NewMapzenAPIEndpoint(api_key)
 api_client, _ := client.NewHTTPClient(api_endpoint)
