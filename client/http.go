@@ -1,9 +1,11 @@
 package client
 
 import (
+	"compress/gzip"
 	"errors"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/response"
+	"io"
 	"io/ioutil"
 	_ "log"
 	"net/http"
@@ -74,12 +76,32 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 
 	defer http_rsp.Body.Close()
 
-	http_body, io_err := ioutil.ReadAll(http_rsp.Body)
+	// TO DO: CHECK HTTP STATUS HERE...
+	
+	var body io.Reader
 
+	switch http_rsp.Header.Get("Content-Encoding") {
+	
+	case "gzip":
+
+		body, err = gzip.NewReader(http_rsp.Body)
+
+		if err != nil {
+			return nil, err
+		}
+		
+	default:
+		body = http_rsp.Body
+	}
+
+	http_body, io_err := ioutil.ReadAll(body)
+	
 	if io_err != nil {
 		return nil, io_err
 	}
 
+	// log.Printf("BODY '%s'\n", http_body)
+	
 	// to do: support other formats...
 
 	rsp, parse_err := response.ParseJSONResponse(http_body)

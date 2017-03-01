@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/client"
 	"github.com/whosonfirst/go-whosonfirst-api/endpoint"
@@ -39,7 +40,11 @@ func main() {
 		log.Fatal("You forgot to specify a method")
 	}
 
-	e, _ := endpoint.NewMapzenAPIEndpoint(api_key)
+	e, err := endpoint.NewMapzenAPIEndpoint(api_key)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if *custom_endpoint != "" {
 
@@ -135,12 +140,12 @@ func main() {
 	if *raw {
 
 		cb = func(rsp api.APIResponse) error {
-			_, err := os.Stdout.Write(rsp.Raw())
+			_, err = os.Stdout.Write(rsp.Raw())
 			return err
 		}
 	}
 
-	var err error
+	// var err error
 
 	if *paginated {
 		err = c.ExecuteMethodPaginated(method, args, cb)
@@ -150,7 +155,8 @@ func main() {
 	}
 
 	if err != nil {
-		log.Fatal(err)
+		msg := fmt.Sprintf("Failed to call '%s' because %s", method, err)
+		log.Fatal(msg)
 	}
 
 	// I don't really understand why the defer func() stuff above
