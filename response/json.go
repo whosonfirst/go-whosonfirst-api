@@ -11,10 +11,12 @@ import (
 )
 
 type JSONPagination struct {
-	page     int
-	pages    int
-	per_page int
-	total    int
+	page       int
+	pages      int
+	per_page   int
+	total      int
+	cursor     string
+	next_query string
 }
 
 func (p JSONPagination) Page() int {
@@ -31,6 +33,14 @@ func (p JSONPagination) PerPage() int {
 
 func (p JSONPagination) Total() int {
 	return p.total
+}
+
+func (p JSONPagination) Cursor() string {
+	return p.cursor
+}
+
+func (p JSONPagination) NextQuery() string {
+	return p.next_query
 }
 
 func (p JSONPagination) String() string {
@@ -132,12 +142,16 @@ func (rsp JSONResponse) Pagination() (api.APIPagination, error) {
 	pages := rsp.get("pages")
 	per_page := rsp.get("per_page")
 	total := rsp.get("total")
+	cursor := rsp.get("cursor")
+	next_query := rsp.get("next_query")
 
 	pg := JSONPagination{
-		page:     int(page.Int()),
-		pages:    int(pages.Int()),
-		per_page: int(per_page.Int()),
-		total:    int(total.Int()),
+		page:       int(page.Int()),
+		pages:      int(pages.Int()),
+		per_page:   int(per_page.Int()),
+		total:      int(total.Int()),
+		cursor:     cursor.String(),
+		next_query: next_query.String(),
 	}
 
 	return &pg, nil

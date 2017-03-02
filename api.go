@@ -37,6 +37,8 @@ type APIPagination interface {
 	Page() int
 	PerPage() int
 	Total() int
+	Cursor() string
+	NextQuery() string
 }
 
 type APIResult interface {
