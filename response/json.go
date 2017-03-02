@@ -44,7 +44,7 @@ func (p JSONPagination) NextQuery() string {
 }
 
 func (p JSONPagination) String() string {
-	return fmt.Sprintf("total %d page %d/%d (%d per page)", p.Total(), p.Page(), p.Pages(), p.PerPage())
+	return fmt.Sprintf("total %d page %d/%d (%d per page) cursor %s next_query %s", p.Total(), p.Page(), p.Pages(), p.PerPage(), p.Cursor(), p.NextQuery())
 }
 
 type JSONError struct {

@@ -10,7 +10,6 @@ import (
 	_ "log"
 	"net/http"
 	"net/url"
-	"strconv"
 	_ "sync/atomic"
 	"time"
 )
@@ -145,12 +144,9 @@ func (client *HTTPClient) ExecuteMethodWithCallback(method string, params *url.V
 
 func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Values, callback api.APIResponseCallback) error {
 
-	pages := 0
-	page := 1
+	api_key := params.Get("api_key") // PLEASE MAKE ME GENERIC AND INTERFACE-Y
 
 	for {
-
-		params.Set("page", strconv.Itoa(page))
 
 		rsp, err := client.ExecuteMethod(method, params)
 
@@ -164,16 +160,13 @@ func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Valu
 			return errors.New(api_err.String())
 		}
 
-		if pages == 0 {
+		pg, err := rsp.Pagination()
 
-			pg, err := rsp.Pagination()
-
-			if err != nil {
-				return err
-			}
-
-			pages = pg.Pages()
+		if err != nil {
+			return err
 		}
+
+		next_query := pg.NextQuery()
 
 		cb_err := callback(rsp)
 
@@ -181,15 +174,23 @@ func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Valu
 			return cb_err
 		}
 
-		if page >= pages {
+		if next_query == "" {
 			break
 		}
+
+		parsed, err := url.ParseQuery(next_query)
+
+		if err != nil {
+			return err
+		}
+
+		parsed.Set("api_key", api_key) // SEE ABOVE ABOUT GENERIC AND INTERFACE-Y
+
+		params = &parsed
 
 		// to do: add proper QPS throttling here
 
 		time.Sleep(200 * time.Millisecond)
-
-		page += 1
 	}
 
 	return nil
