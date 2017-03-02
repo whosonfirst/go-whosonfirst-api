@@ -51,12 +51,6 @@ func (client *HTTPClient) DefaultArgs() *url.Values {
 
 func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.APIResponse, error) {
 
-	format := params.Get("format")
-
-	if format != "" && format != "json" {
-		return nil, errors.New("JSON is the only output format currently supported")
-	}
-
 	params.Set("method", method)
 
 	http_req, err := client.endpoint.NewRequest(params)
@@ -76,12 +70,20 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 
 	defer http_rsp.Body.Close()
 
-	// TO DO: CHECK HTTP STATUS HERE...
-	
+	switch http_rsp.StatusCode {
+
+	case 200:
+		// pass
+	case 201:
+		// pass
+	default:
+		return nil, errors.New(http_rsp.Status)
+	}
+
 	var body io.Reader
 
 	switch http_rsp.Header.Get("Content-Encoding") {
-	
+
 	case "gzip":
 
 		body, err = gzip.NewReader(http_rsp.Body)
@@ -89,22 +91,33 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 		if err != nil {
 			return nil, err
 		}
-		
+
 	default:
 		body = http_rsp.Body
 	}
 
 	http_body, io_err := ioutil.ReadAll(body)
-	
+
 	if io_err != nil {
 		return nil, io_err
 	}
 
-	// log.Printf("BODY '%s'\n", http_body)
-	
-	// to do: support other formats...
+	var rsp api.APIResponse
+	var parse_err error
 
-	rsp, parse_err := response.ParseJSONResponse(http_body)
+	// TO FIGURE OUT: csv and meta formats will need to be passed
+	// headers or something because that is where all the pagination
+	// stuff will be stored (20170301/thisisaaronland)
+
+	switch params.Get("format") {
+
+	case "":
+		rsp, parse_err = response.ParseJSONResponse(http_body)
+	case "json":
+		rsp, parse_err = response.ParseJSONResponse(http_body)
+	default:
+		return nil, errors.New("Unsupported format")
+	}
 
 	if parse_err != nil {
 		return nil, parse_err
