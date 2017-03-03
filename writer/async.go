@@ -10,32 +10,36 @@ import (
 )
 
 type APIResultAsyncWriter struct {
-	writers []api.APIResultWriter
-	locks   []*sync.Mutex
-	wg      *sync.WaitGroup
+	writers  []api.APIResultWriter
+	wg       *sync.WaitGroup
+	throttle chan bool
 }
 
 func (t *APIResultAsyncWriter) Write(r api.APIResult) (int, error) {
 
-	for i, w := range t.writers {
+	for _, w := range t.writers {
+
+		log.Println("waiting...")
+		<-t.throttle
 
 		t.wg.Add(1)
 
-		go func(w api.APIResultWriter, r api.APIResult, mu *sync.Mutex, wg *sync.WaitGroup) {
+		go func(w api.APIResultWriter, r api.APIResult, throttle chan bool, wg *sync.WaitGroup) {
 
-			defer wg.Done()
+			log.Println("writing...")
 
-			mu.Lock()
+			defer func() {
+				throttle <- true
+				wg.Done()
+			}()
 
 			_, err := w.WriteResult(r)
-
-			mu.Unlock()
 
 			if err != nil {
 				log.Println(err)
 			}
 
-		}(w, r, t.locks[i], t.wg)
+		}(w, r, t.throttle, t.wg)
 
 	}
 
@@ -56,18 +60,19 @@ func NewAPIResultAsyncWriter(writers ...api.APIResultWriter) *APIResultAsyncWrit
 	w := make([]api.APIResultWriter, len(writers))
 	copy(w, writers)
 
-	locks := make([]*sync.Mutex, 0)
+	count := 50 // sudo make me a knob
+	throttle := make(chan bool, count)
 
-	for range w {
-		locks = append(locks, new(sync.Mutex))
+	for i := 0; i < count; i++ {
+		throttle <- true
 	}
 
 	wg := new(sync.WaitGroup)
 
 	async := APIResultAsyncWriter{
-		writers: w,
-		locks:   locks,
-		wg:      wg,
+		writers:  w,
+		throttle: throttle,
+		wg:       wg,
 	}
 
 	return &async

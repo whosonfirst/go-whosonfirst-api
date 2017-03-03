@@ -106,7 +106,8 @@ func main() {
 		writers = append(writers, st)
 	}
 
-	multi := writer.NewAPIResultMultiWriter(writers...)
+	// multi := writer.NewAPIResultMultiWriter(writers...)
+	multi := writer.NewAPIResultAsyncWriter(writers...)
 
 	if len(writers) == 0 && !*raw {
 		log.Fatal("You forgot to specify an output source")
@@ -138,7 +139,6 @@ func main() {
 	}
 
 	if *raw {
-
 		cb = func(rsp api.APIResponse) error {
 			_, err = os.Stdout.Write(rsp.Raw())
 			return err
