@@ -21,16 +21,16 @@ func main() {
 	var stdout = flag.Bool("stdout", false, "Write API results to STDOUT")
 	var geojson = flag.Bool("geojson", false, "Transform API results to source GeoJSON for each Who's On First place.")
 	var raw = flag.Bool("raw", false, "Dump raw Who's On First API responses.")
-	var async = flag.Bool("async", false, "...")
-	var timings = flag.Bool("timings", false, "...")	
+	var async = flag.Bool("async", false, "Process API results asynchronously. If true then any errors processing a response are reported by will not stop execution.")
+	var timings = flag.Bool("timings", false, "Track and report total time to invoke an API method. Timings are printed to STDOUT.")
 	var paginated = flag.Bool("paginated", false, "Automatically paginate API results.")
 
-	var output = flag.String("output", "", "...")
+	var output = flag.String("output", "", "The path to a file where output should be written.")
 
 	var tts_speak = flag.Bool("tts", false, "Output integers to a text-to-speak engine.")
 	var tts_engine = flag.String("tts-engine", "", "A valid go-writer-tts text-to-speak engine. Valid options are: osx, polly.")
 
-	var custom_endpoint = flag.String("endpoint", "", "...")
+	var custom_endpoint = flag.String("endpoint", "", "Define a custom endpoint for the Who's On First API.")
 
 	flag.Parse()
 
@@ -158,7 +158,7 @@ func main() {
 	if *timings {
 		t1 = time.Now()
 	}
-	
+
 	if *paginated {
 		err = c.ExecuteMethodPaginated(method, args, cb)
 
@@ -177,9 +177,9 @@ func main() {
 	multi.Close()
 
 	if *timings {
-	   t2 := time.Since(t1)
-	   log.Println("time %t\n", t2)	      
+		t2 := time.Since(t1)
+		log.Printf("time to '%s': %t\n", method, t2)
 	}
-	
+
 	os.Exit(0)
 }
