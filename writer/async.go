@@ -19,14 +19,11 @@ func (t *APIResultAsyncWriter) Write(r api.APIResult) (int, error) {
 
 	for _, w := range t.writers {
 
-		log.Println("waiting...")
 		<-t.throttle
 
 		t.wg.Add(1)
 
 		go func(w api.APIResultWriter, r api.APIResult, throttle chan bool, wg *sync.WaitGroup) {
-
-			log.Println("writing...")
 
 			defer func() {
 				throttle <- true
