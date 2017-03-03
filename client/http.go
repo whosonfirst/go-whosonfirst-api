@@ -8,7 +8,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-api/response"
 	"io"
 	"io/ioutil"
-	"log"
+	_ "log"
 	"net/http"
 	"net/url"
 	_ "sync/atomic"
@@ -153,18 +153,6 @@ func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Valu
 
 	for {
 
-		/*
-
-		Why does this happen (20170303/thisisaaronland)
-		
-		2017/03/03 11:24:13 &map[api_key:[] method:[whosonfirst.places.getDescendants] id:[85922583] per_page:[500] cursor:[cXVlcnlUaGVuRmV0Y2g7NTsyMTAxMTp4S0E5V3ZPNlFzeTkyVWRMSzZYeTJ3OzIxMDEyOnhLQTlXdk82UXN5OTJVZExLNlh5Mnc7MjEwMTM6eEtBOVd2TzZRc3k5MlVkTEs2WHkydzsyMTAxNDp4S0E5V3ZPNlFzeTkyVWRMSzZYeTJ3OzIxMDE1OnhLQTlXdk82UXN5OTJVZExLNlh5Mnc7MDs=]]
-		2017/03/03 11:24:13 &map[null:[] api_key:[]
-		2017/03/03 11:24:13 Failed to call 'whosonfirst.places.getDescendants' because 432 Missing 'id' parameter
-
-		*/
-		
-		log.Println(params)
-		
 		rsp, err := client.ExecuteMethod(method, params)
 
 		if err != nil {
@@ -191,7 +179,7 @@ func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Valu
 			return cb_err
 		}
 
-		if next_query == "" {
+		if next_query == "null" {
 			break
 		}
 

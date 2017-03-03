@@ -20,6 +20,7 @@ func main() {
 	var stdout = flag.Bool("stdout", false, "Write API results to STDOUT")
 	var geojson = flag.Bool("geojson", false, "Transform API results to source GeoJSON for each Who's On First place.")
 	var raw = flag.Bool("raw", false, "Dump raw Who's On First API responses.")
+	var async = flag.Bool("async", false, "...")
 	var paginated = flag.Bool("paginated", false, "Automatically paginate API results.")
 
 	var output = flag.String("output", "", "...")
@@ -106,8 +107,13 @@ func main() {
 		writers = append(writers, st)
 	}
 
-	// multi := writer.NewAPIResultMultiWriter(writers...)
+	if *async {
+		// please fix me...
+	}
+
 	multi := writer.NewAPIResultAsyncWriter(writers...)
+
+	//multi = writer.NewAPIResultMultiWriter(writers...)
 
 	if len(writers) == 0 && !*raw {
 		log.Fatal("You forgot to specify an output source")

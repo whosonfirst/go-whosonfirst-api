@@ -52,6 +52,11 @@ type APIResult interface {
 	URI() string
 }
 
+type APIResultFooWriter interface { // PLEASE RENAME ME...
+	Write(APIResult) (int, error)
+	Close()
+}
+
 type APIResultWriter interface {
 	Write([]byte) (int, error)
 	WriteString(string) (int, error)
