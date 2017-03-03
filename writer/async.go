@@ -10,6 +10,7 @@ import (
 )
 
 type APIResultAsyncWriter struct {
+	api.APIResultFooWriter
 	writers  []api.APIResultWriter
 	wg       *sync.WaitGroup
 	throttle chan bool

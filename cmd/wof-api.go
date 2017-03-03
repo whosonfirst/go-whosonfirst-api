@@ -109,13 +109,13 @@ func main() {
 		writers = append(writers, st)
 	}
 
+	var multi api.APIResultFooWriter
+
+	multi = writer.NewAPIResultMultiWriter(writers...)
+
 	if *async {
-		// please fix me...
+		multi = writer.NewAPIResultAsyncWriter(writers...)
 	}
-
-	multi := writer.NewAPIResultAsyncWriter(writers...)
-
-	//multi = writer.NewAPIResultMultiWriter(writers...)
 
 	if len(writers) == 0 && !*raw {
 		log.Fatal("You forgot to specify an output source")
@@ -178,7 +178,7 @@ func main() {
 
 	if *timings {
 		t2 := time.Since(t1)
-		log.Printf("time to '%s': %t\n", method, t2)
+		log.Printf("time to '%s': %T\n", method, t2)
 	}
 
 	os.Exit(0)

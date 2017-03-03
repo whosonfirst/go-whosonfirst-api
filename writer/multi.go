@@ -9,6 +9,7 @@ import (
 )
 
 type APIResultMultiWriter struct {
+	api.APIResultFooWriter
 	writers []api.APIResultWriter
 }
 
@@ -40,5 +41,10 @@ func (t *APIResultMultiWriter) Close() {
 func NewAPIResultMultiWriter(writers ...api.APIResultWriter) *APIResultMultiWriter {
 	w := make([]api.APIResultWriter, len(writers))
 	copy(w, writers)
-	return &APIResultMultiWriter{w}
+
+	m := APIResultMultiWriter{
+		writers: w,
+	}
+
+	return &m
 }

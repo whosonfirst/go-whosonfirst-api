@@ -3,6 +3,7 @@ package util
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"io/ioutil"
 	_ "log"
@@ -22,7 +23,8 @@ func APIResultToGeoJSON(api_rsp api.APIResult) ([]byte, error) {
 	defer http_rsp.Body.Close()
 
 	if http_rsp.StatusCode != 200 {
-		return nil, errors.New(http_rsp.Status)
+		msg := fmt.Sprintf("Failed to retrieve %s because %s", uri, http_rsp.Status)
+		return nil, errors.New(msg)
 	}
 
 	body, err := ioutil.ReadAll(http_rsp.Body)
