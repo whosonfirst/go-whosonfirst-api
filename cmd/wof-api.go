@@ -9,6 +9,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-api/writer"
 	"log"
 	"os"
+	"time"
 )
 
 func main() {
@@ -21,6 +22,7 @@ func main() {
 	var geojson = flag.Bool("geojson", false, "Transform API results to source GeoJSON for each Who's On First place.")
 	var raw = flag.Bool("raw", false, "Dump raw Who's On First API responses.")
 	var async = flag.Bool("async", false, "...")
+	var timings = flag.Bool("timings", false, "...")	
 	var paginated = flag.Bool("paginated", false, "Automatically paginate API results.")
 
 	var output = flag.String("output", "", "...")
@@ -151,8 +153,12 @@ func main() {
 		}
 	}
 
-	// var err error
+	var t1 time.Time
 
+	if *timings {
+		t1 = time.Now()
+	}
+	
 	if *paginated {
 		err = c.ExecuteMethodPaginated(method, args, cb)
 
@@ -169,5 +175,11 @@ func main() {
 	// to do this doesn't work... (20170125/thisisaaronland)
 
 	multi.Close()
+
+	if *timings {
+	   t2 := time.Since(t1)
+	   log.Println("time %t\n", t2)	      
+	}
+	
 	os.Exit(0)
 }
