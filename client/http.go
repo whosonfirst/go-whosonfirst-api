@@ -3,6 +3,7 @@ package client
 import (
 	"compress/gzip"
 	"errors"
+	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/response"
 	"io"
@@ -76,7 +77,11 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 	case 201:
 		// pass
 	default:
-		return nil, errors.New(http_rsp.Status)
+
+		header := http_rsp.Header
+		msg := fmt.Sprintf("%s %s", header.Get("X-Api-Error-Code"), header.Get("X-Api-Error-Message"))
+
+		return nil, errors.New(msg)
 	}
 
 	var body io.Reader
