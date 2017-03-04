@@ -108,7 +108,7 @@ Usage of ./bin/wof-api:
 
 #### Example
 
-Fetch all the venues in San Francisco](https://whosonfirst.mapzen.com/spelunker/id/85922583/) as a single GeoJSON `FeatureCollection`.
+Fetch all 63, 387 venues in [San Francisco](https://whosonfirst.mapzen.com/spelunker/id/85922583/) as a single GeoJSON `FeatureCollection`.
 
 ```
 ./bin/wof-api -param method=whosonfirst.places.search -param locality_id=85922583 -param api_key=mapzen-XXXXXXX -param per_page=500 -param placetype=venue -paginated -geojson -output venues.geojson -timings -async
@@ -121,10 +121,10 @@ Fetch all the venues in San Francisco](https://whosonfirst.mapzen.com/spelunker/
 
 Here's what's going on:
 
-* Fetch all the venues that in [San Francisco](https://whosonfirst.mapzen.com/spelunker/id/85922583/) (by passing the `-param placetype=venue` and `-param locality_id=85922583` flags).
-* Do so in batches of 500 and handle pagination automatically (passing the `-param per_page=500` and `-paginated` flags).
-* For each result fetch the source GeoJSON file over the network, asynchronously, creating a new `FeatureCollection` and save it as `venues.geojson` (by passing the `-geojson`, `-async` and `-output venues.geojson` flags).
-* Print how long the whole thing takes (by passing the `-timings` flag).
+* Fetch all the venues that are in [San Francisco](https://whosonfirst.mapzen.com/spelunker/id/85922583/) _by passing the `-param placetype=venue` and `-param locality_id=85922583` flags, respectively_.
+* Do so in batches of 500 and handle pagination automatically _by passing the `-param per_page=500` and `-paginated` flags respectively_.
+* For each result fetch the source GeoJSON file over the network, and do so asynchronously, creating a new `FeatureCollection` and save it as `venues.geojson` _by passing the `-geojson`, `-async` and `-output venues.geojson` flags, respectively_.
+* Print how long the whole thing takes _by passing the `-timings` flag_.
 
 ## See also
 
