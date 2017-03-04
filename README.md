@@ -4,7 +4,7 @@ Go package for working with Who's On First API.
 
 ## Important
 
-Too soon, move along.
+Too soon, move along. Probably.
 
 ## Install
 
@@ -77,15 +77,19 @@ c.ExecuteMethodPaginated(method, args, cb)
 
 ### wof-api
 
+`wof-api` is a command line tool for calling the Who's On First API.
+
 ```
 ./bin/wof-api -h
 Usage of ./bin/wof-api:
+  -async
+    	Process API results asynchronously. If true then any errors processing a response are reported by will not stop execution.
   -endpoint string
-    	TBW
+    	Define a custom endpoint for the Who's On First API.
   -geojson
     	Transform API results to source GeoJSON for each Who's On First place.
   -output string
-    	TBW
+    	The path to a file where output should be written.
   -paginated
     	Automatically paginate API results.
   -param value
@@ -94,11 +98,33 @@ Usage of ./bin/wof-api:
     	Dump raw Who's On First API responses.
   -stdout
     	Write API results to STDOUT
+  -timings
+    	Track and report total time to invoke an API method. Timings are printed to STDOUT.
   -tts
     	Output integers to a text-to-speak engine.
   -tts-engine string
     	A valid go-writer-tts text-to-speak engine. Valid options are: osx, polly.
 ```
+
+#### Example
+
+Fetch all the venues in San Francisco](https://whosonfirst.mapzen.com/spelunker/id/85922583/) as a single GeoJSON `FeatureCollection`.
+
+```
+./bin/wof-api -param method=whosonfirst.places.search -param locality_id=85922583 -param api_key=mapzen-XXXXXXX -param per_page=500 -param placetype=venue -paginated -geojson -output venues.geojson -timings -async
+2017/03/03 17:29:11 Failed to retrieve https://whosonfirst.mapzen.com/data/110/880/049/3/1108800493.geojson because 404 Not Found
+2017/03/03 17:29:11 Failed to retrieve https://whosonfirst.mapzen.com/data/110/880/049/1/1108800491.geojson because 404 Not Found
+2017/03/03 17:29:11 Failed to retrieve https://whosonfirst.mapzen.com/data/110/882/755/7/1108827557.geojson because 404 Not Found
+2017/03/03 17:30:09 Failed to retrieve https://whosonfirst.mapzen.com/data/236/676/137/236676137.geojson because 500 Internal Server Error
+2017/03/03 17:31:17 time to 'whosonfirst.places.search': 5m22.656896289s
+```
+
+Here's what's going on:
+
+* Fetch all the venues that in [San Francisco](https://whosonfirst.mapzen.com/spelunker/id/85922583/) (by passing the `-param placetype=venue` and `-param locality_id=85922583` flags).
+* Do so in batches of 500 and handle pagination automatically (passing the `-param per_page=500` and `-paginated` flags).
+* For each result fetch the source GeoJSON file over the network, asynchronously, creating a new `FeatureCollection` and save it as `venues.geojson` (by passing the `-geojson`, `-async` and `-output venues.geojson` flags).
+* Print how long the whole thing takes (by passing the `-timings` flag).
 
 ## See also
 
