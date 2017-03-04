@@ -83,6 +83,13 @@ func (rsp MetaResponse) Results() ([]api.APIResult, error) {
 
 	results := make([]api.APIResult, 0)
 
+	// not sure if this is the best idea but it will do for now...
+	// (20170304/thisisaaronland)
+
+	if len(rsp.raw) == 0 {
+		return results, nil
+	}
+
 	byte_reader := bytes.NewReader(rsp.raw)
 	reader, err := csv.NewDictReader(byte_reader)
 

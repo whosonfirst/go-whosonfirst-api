@@ -5,6 +5,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-csv"
 	"github.com/whosonfirst/go-whosonfirst-uri"
+	"sort"
 	"strconv"
 )
 
@@ -30,6 +31,8 @@ func (r CSVResult) String(flags ...api.APIResultFlag) string {
 		fieldnames = append(fieldnames, k)
 	}
 
+	sort.Strings(fieldnames)
+
 	buf := new(bytes.Buffer)
 
 	writer, err := csv.NewDictWriter(buf, fieldnames)
@@ -38,12 +41,14 @@ func (r CSVResult) String(flags ...api.APIResultFlag) string {
 		return ""
 	}
 
-	if len(flags) > 0 && flags[0].Key() == "header" && flags[0].Value().(bool) {
+	// this sucks... (2070304/thisisaaronland)
+	// APIResultFlag is all wet paint... still trying to work it out
+
+	if len(flags) > 0 && flags[0].Key() == "header" && flags[0].Bool() {
 		writer.WriteHeader()
 	}
 
 	writer.WriteRow(r.result)
-
 	return buf.String()
 }
 

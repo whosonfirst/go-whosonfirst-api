@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -53,29 +54,62 @@ type APIResult interface {
 	String(...APIResultFlag) string
 }
 
+// APIResultFlag is all wet paint... still trying to work it out
+
 type APIResultFlag interface {
 	Key() string
 	Value() interface{}
+	Bool() bool
+	String() string
+	Int() int
+	Int64() int64
+	Float64() float64
 }
 
 type APIResultBooleanFlag struct {
 	APIResultFlag
-	FlKey   string
-	FlValue bool
+	flkey   string
+	flvalue bool
 }
 
 func (fl APIResultBooleanFlag) Key() string {
-	return fl.FlKey
+	return fl.flkey
 }
 
 func (fl APIResultBooleanFlag) Value() interface{} {
-	return fl.FlValue
+	return fl.flvalue
+}
+
+func (fl APIResultBooleanFlag) Bool() bool {
+	return fl.Value().(bool)
+}
+
+func (fl APIResultBooleanFlag) String() string {
+	return fmt.Sprintf("%t", fl.Bool())
+}
+
+func (fl APIResultBooleanFlag) Int() int {
+
+	if fl.Bool() {
+		return 1
+	}
+
+	return 0
+}
+
+func (fl APIResultBooleanFlag) Int64() int64 {
+	return int64(fl.Int())
+}
+
+func (fl APIResultBooleanFlag) Float64() float64 {
+	return float64(fl.Int())
 }
 
 func NewAPIResultBooleanFlag(key string, flag bool) APIResultBooleanFlag {
+
 	fl := APIResultBooleanFlag{
-		FlKey:   key,
-		FlValue: flag,
+		flkey:   key,
+		flvalue: flag,
 	}
 
 	return fl
