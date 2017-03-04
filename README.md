@@ -128,6 +128,16 @@ Here's what's going on:
 * For each result fetch the source GeoJSON file over the network, and do so asynchronously, creating a new `FeatureCollection` and save it as `venues.geojson` _by passing the `-geojson`, `-async` and `-output venues.geojson` flags, respectively_.
 * Print how long the whole thing takes _by passing the `-timings` flag_.
 
+You could also do the same by calling the `whosonfirst.places.getDescendants` API method, like this:
+
+```
+./bin/wof-api -param method=whosonfirst.places.getDescendants -param id=85922583 -param api_key=mapzen-XXXXXX -param per_page=500 -param placetype=venue -paginated -geojson -output descendants.geojson -timings -async
+2017/03/03 17:56:14 Failed to retrieve https://whosonfirst.mapzen.com/data/110/880/049/1/1108800491.geojson because 404 Not Found
+2017/03/03 17:56:14 Failed to retrieve https://whosonfirst.mapzen.com/data/110/880/049/3/1108800493.geojson because 404 Not Found
+2017/03/03 17:56:14 Failed to retrieve https://whosonfirst.mapzen.com/data/110/882/755/7/1108827557.geojson because 404 Not Found
+2017/03/03 17:56:15 time to 'whosonfirst.places.getDescendants': 5m16.811679531s
+```
+
 If you're wondering about the `-geojson` flag it's useful because the Who's On First API returns a minimum subset of a record's properties by default and does return geometries at all (at least not yet). For example, here's what a default API response for a place looks like:
 
 ```
@@ -142,16 +152,6 @@ If you're wondering about the `-geojson` flag it's useful because the Who's On F
 ```																					
 
 The `-geojson` flag will instruct the `wof-api` tool to determine the fully qualified URL for a record – for example `202863435` becomes `https://whosonfirst.mapzen.com/data/202/863/435/202863435.geojson` – and then fetch the contents of that file and use that (rather than the default response above) in your final output.
-
-You could also do the same by calling the `whosonfirst.places.getDescendants` API method, like this:
-
-```
-./bin/wof-api -param method=whosonfirst.places.getDescendants -param id=85922583 -param api_key=mapzen-XXXXXX -param per_page=500 -param placetype=venue -paginated -geojson -output descendants.geojson -timings -async
-2017/03/03 17:56:14 Failed to retrieve https://whosonfirst.mapzen.com/data/110/880/049/1/1108800491.geojson because 404 Not Found
-2017/03/03 17:56:14 Failed to retrieve https://whosonfirst.mapzen.com/data/110/880/049/3/1108800493.geojson because 404 Not Found
-2017/03/03 17:56:14 Failed to retrieve https://whosonfirst.mapzen.com/data/110/882/755/7/1108827557.geojson because 404 Not Found
-2017/03/03 17:56:15 time to 'whosonfirst.places.getDescendants': 5m16.811679531s
-```
 
 ## See also
 
