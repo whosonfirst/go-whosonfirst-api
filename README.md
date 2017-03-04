@@ -128,6 +128,21 @@ Here's what's going on:
 * For each result fetch the source GeoJSON file over the network, and do so asynchronously, creating a new `FeatureCollection` and save it as `venues.geojson` _by passing the `-geojson`, `-async` and `-output venues.geojson` flags, respectively_.
 * Print how long the whole thing takes _by passing the `-timings` flag_.
 
+If you're wondering about the `-geojson` flag it's useful because the Who's On First API returns a minimum subset of a record's properties by default and does return geometries at all (at least not yet). For example, here's what a default API response for a place looks like:
+
+```
+{
+	"wof:id": 202863435,
+	"wof:parent_id": "85887433",
+	"wof:name": "18th Ave Photo",
+	"wof:placetype": "venue",
+	"wof:country": "US",
+	"wof:repo": "whosonfirst-data-venue-us-ca"
+}
+```																					
+
+The `-geojson` flag will instruct the `wof-api` tool to determine the fully qualified URL for a record – for example `202863435` becomes `https://whosonfirst.mapzen.com/data/202/863/435/202863435.geojson` – and then fetch the contents of that file and use that (rather than the default response above) in your final output.
+
 You could also do the same by calling the `whosonfirst.places.getDescendants` API method, like this:
 
 ```
