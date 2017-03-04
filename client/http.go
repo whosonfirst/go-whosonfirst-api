@@ -1,17 +1,13 @@
 package client
 
 import (
-	"compress/gzip"
 	"errors"
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/response"
-	"io"
-	"io/ioutil"
-	"log"
+	_ "log"
 	"net/http"
 	"net/url"
-	_ "sync/atomic"
 	"time"
 )
 
@@ -84,28 +80,6 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 		return nil, errors.New(msg)
 	}
 
-	var body io.Reader
-
-	switch http_rsp.Header.Get("Content-Encoding") {
-
-	case "gzip":
-
-		body, err = gzip.NewReader(http_rsp.Body)
-
-		if err != nil {
-			return nil, err
-		}
-
-	default:
-		body = http_rsp.Body
-	}
-
-	http_body, io_err := ioutil.ReadAll(body)
-
-	if io_err != nil {
-		return nil, io_err
-	}
-
 	var rsp api.APIResponse
 	var parse_err error
 
@@ -116,12 +90,10 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 	switch params.Get("format") {
 
 	case "":
-		rsp, parse_err = response.ParseJSONResponse(http_body)
+		rsp, parse_err = response.ParseJSONResponse(http_rsp)
 	case "json":
-		rsp, parse_err = response.ParseJSONResponse(http_body)
+		rsp, parse_err = response.ParseJSONResponse(http_rsp)
 	default:
-
-		log.Println(string(http_body))
 		return nil, errors.New("Unsupported output format")
 	}
 

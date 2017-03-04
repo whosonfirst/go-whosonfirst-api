@@ -7,7 +7,9 @@ import (
 	"github.com/tidwall/gjson"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/result"
+	"github.com/whosonfirst/go-whosonfirst-api/util"
 	_ "log"
+	"net/http"
 )
 
 type JSONPagination struct {
@@ -157,10 +159,16 @@ func (rsp JSONResponse) Pagination() (api.APIPagination, error) {
 	return &pg, nil
 }
 
-func ParseJSONResponse(raw []byte) (*JSONResponse, error) {
+func ParseJSONResponse(http_rsp *http.Response) (*JSONResponse, error) {
+
+	raw, err := util.HTTPResponseToBytes(http_rsp)
+
+	if err != nil {
+		return nil, err
+	}
 
 	var stub interface{}
-	err := json.Unmarshal(raw, &stub)
+	err = json.Unmarshal(raw, &stub)
 
 	if err != nil {
 		return nil, err

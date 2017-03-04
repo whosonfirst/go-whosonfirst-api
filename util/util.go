@@ -1,14 +1,44 @@
 package util
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-api"
+	"io"
 	"io/ioutil"
 	_ "log"
 	"net/http"
 )
+
+func HTTPResponseToBytes(http_rsp *http.Response) ([]byte, error) {
+
+	var body io.Reader
+	var err error
+
+	switch http_rsp.Header.Get("Content-Encoding") {
+
+	case "gzip":
+
+		body, err = gzip.NewReader(http_rsp.Body)
+
+		if err != nil {
+			return nil, err
+		}
+
+	default:
+		body = http_rsp.Body
+	}
+
+	http_body, io_err := ioutil.ReadAll(body)
+
+	if io_err != nil {
+		return nil, io_err
+	}
+
+	return http_body, nil
+}
 
 func APIResultToGeoJSON(api_rsp api.APIResult) ([]byte, error) {
 
