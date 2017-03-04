@@ -109,12 +109,12 @@ func main() {
 		writers = append(writers, st)
 	}
 
-	var multi api.APIResultFooWriter
+	var multi api.APIResultMultiWriter
 
-	multi = writer.NewAPIResultMultiWriter(writers...)
+	multi = writer.NewAPIResultMultiWriterSync(writers...)
 
 	if *async {
-		multi = writer.NewAPIResultAsyncWriter(writers...)
+		multi = writer.NewAPIResultMultiWriterAsync(writers...)
 	}
 
 	if len(writers) == 0 && !*raw {
@@ -178,7 +178,7 @@ func main() {
 
 	if *timings {
 		t2 := time.Since(t1)
-		log.Printf("time to '%s': %T\n", method, t2)
+		log.Printf("time to '%s': %v\n", method, t2)
 	}
 
 	os.Exit(0)

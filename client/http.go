@@ -8,7 +8,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-api/response"
 	"io"
 	"io/ioutil"
-	_ "log"
+	"log"
 	"net/http"
 	"net/url"
 	_ "sync/atomic"
@@ -120,7 +120,9 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 	case "json":
 		rsp, parse_err = response.ParseJSONResponse(http_body)
 	default:
-		return nil, errors.New("Unsupported format")
+
+		log.Println(string(http_body))
+		return nil, errors.New("Unsupported output format")
 	}
 
 	if parse_err != nil {

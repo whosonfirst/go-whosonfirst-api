@@ -8,16 +8,16 @@ import (
 	_ "log"
 )
 
-type APIResultMultiWriter struct {
-	api.APIResultFooWriter
+type APIResultMultiWriterSync struct {
+	api.APIResultMultiWriter
 	writers []api.APIResultWriter
 }
 
-func (t *APIResultMultiWriter) Write(r api.APIResult) (int, error) {
+func (mw *APIResultMultiWriterSync) Write(r api.APIResult) (int, error) {
 
 	var p int
 
-	for _, w := range t.writers {
+	for _, w := range mw.writers {
 
 		n, err := w.WriteResult(r)
 
@@ -31,20 +31,20 @@ func (t *APIResultMultiWriter) Write(r api.APIResult) (int, error) {
 	return p, nil
 }
 
-func (t *APIResultMultiWriter) Close() {
+func (mw *APIResultMultiWriterSync) Close() {
 
-	for _, wr := range t.writers {
+	for _, wr := range mw.writers {
 		wr.Close()
 	}
 }
 
-func NewAPIResultMultiWriter(writers ...api.APIResultWriter) *APIResultMultiWriter {
+func NewAPIResultMultiWriterSync(writers ...api.APIResultWriter) *APIResultMultiWriterSync {
 	w := make([]api.APIResultWriter, len(writers))
 	copy(w, writers)
 
-	m := APIResultMultiWriter{
+	mw := APIResultMultiWriterSync{
 		writers: w,
 	}
 
-	return &m
+	return &mw
 }

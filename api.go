@@ -52,7 +52,7 @@ type APIResult interface {
 	URI() string
 }
 
-type APIResultFooWriter interface { // PLEASE RENAME ME...
+type APIResultMultiWriter interface { // PLEASE RENAME ME...
 	Write(APIResult) (int, error)
 	Close()
 }

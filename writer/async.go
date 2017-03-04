@@ -9,20 +9,20 @@ import (
 	"sync"
 )
 
-type APIResultAsyncWriter struct {
-	api.APIResultFooWriter
+type APIResultMultiWriterAsync struct {
+	api.APIResultMultiWriter
 	writers  []api.APIResultWriter
 	wg       *sync.WaitGroup
 	throttle chan bool
 }
 
-func (t *APIResultAsyncWriter) Write(r api.APIResult) (int, error) {
+func (mw *APIResultMultiWriterAsync) Write(r api.APIResult) (int, error) {
 
-	for _, w := range t.writers {
+	for _, w := range mw.writers {
 
-		<-t.throttle
+		<-mw.throttle
 
-		t.wg.Add(1)
+		mw.wg.Add(1)
 
 		go func(w api.APIResultWriter, r api.APIResult, throttle chan bool, wg *sync.WaitGroup) {
 
@@ -37,23 +37,23 @@ func (t *APIResultAsyncWriter) Write(r api.APIResult) (int, error) {
 				log.Println(err)
 			}
 
-		}(w, r, t.throttle, t.wg)
+		}(w, r, mw.throttle, mw.wg)
 
 	}
 
 	return 1, nil
 }
 
-func (t *APIResultAsyncWriter) Close() {
+func (mw *APIResultMultiWriterAsync) Close() {
 
-	t.wg.Wait()
+	mw.wg.Wait()
 
-	for _, wr := range t.writers {
+	for _, wr := range mw.writers {
 		wr.Close()
 	}
 }
 
-func NewAPIResultAsyncWriter(writers ...api.APIResultWriter) *APIResultAsyncWriter {
+func NewAPIResultMultiWriterAsync(writers ...api.APIResultWriter) *APIResultMultiWriterAsync {
 
 	w := make([]api.APIResultWriter, len(writers))
 	copy(w, writers)
@@ -67,11 +67,11 @@ func NewAPIResultAsyncWriter(writers ...api.APIResultWriter) *APIResultAsyncWrit
 
 	wg := new(sync.WaitGroup)
 
-	async := APIResultAsyncWriter{
+	mw := APIResultMultiWriterAsync{
 		writers:  w,
 		throttle: throttle,
 		wg:       wg,
 	}
 
-	return &async
+	return &mw
 }
