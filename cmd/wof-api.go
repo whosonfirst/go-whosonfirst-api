@@ -76,6 +76,9 @@ func main() {
 
 	if *geojson {
 
+		// sudo reconcile with same-same code for *raw below
+		// (20170304/thisisaaronland)
+
 		dest := os.Stdout
 
 		if *output != "" {
@@ -147,8 +150,25 @@ func main() {
 	}
 
 	if *raw {
+
+		// sudo reconcile with same-same code for *geojson above
+		// (20170304/thisisaaronland)
+
+		dest := os.Stdout
+
+		if *output != "" {
+
+			f, err := os.OpenFile(*output, os.O_RDWR|os.O_CREATE, 0644)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			dest = f
+		}
+
 		cb = func(rsp api.APIResponse) error {
-			_, err = os.Stdout.Write(rsp.Raw())
+			_, err = dest.Write(rsp.Raw())
 			return err
 		}
 	}
