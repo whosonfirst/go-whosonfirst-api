@@ -95,6 +95,8 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 		rsp, parse_err = response.ParseCSVResponse(http_rsp)
 	case "json":
 		rsp, parse_err = response.ParseJSONResponse(http_rsp)
+	case "meta":
+		rsp, parse_err = response.ParseMetaResponse(http_rsp)
 	default:
 		return nil, errors.New("Unsupported output format")
 	}

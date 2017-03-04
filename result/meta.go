@@ -8,21 +8,21 @@ import (
 	"strconv"
 )
 
-type CSVResult struct {
+type MetaResult struct {
 	api.APIResult
 	result map[string]string
 }
 
-func NewCSVResult(result map[string]string) (*CSVResult, error) {
+func NewMetaResult(result map[string]string) (*MetaResult, error) {
 
-	r := CSVResult{
+	r := MetaResult{
 		result: result,
 	}
 
 	return &r, nil
 }
 
-func (r CSVResult) String() string {
+func (r MetaResult) String() string {
 
 	fieldnames := make([]string, 0)
 
@@ -44,48 +44,47 @@ func (r CSVResult) String() string {
 	return buf.String()
 }
 
-func (r CSVResult) WOFId() int64 {
+func (r MetaResult) WOFId() int64 {
 
-	str_id, _ := r.result["wof_id"]
+	str_id, _ := r.result["id"]
 	id, _ := strconv.Atoi(str_id)
 
 	return int64(id)
 }
 
-func (r CSVResult) WOFParentId() int64 {
+func (r MetaResult) WOFParentId() int64 {
 
-	str_id, _ := r.result["wof_parent_id"]
+	str_id, _ := r.result["parent_id"]
 	id, _ := strconv.Atoi(str_id)
 
 	return int64(id)
 }
 
-func (r CSVResult) WOFName() string {
-	name, _ := r.result["wof_name"]
+func (r MetaResult) WOFName() string {
+	name, _ := r.result["name"]
 	return name
 }
 
-func (r CSVResult) WOFPlacetype() string {
-	placetype, _ := r.result["wof_placetype"]
+func (r MetaResult) WOFPlacetype() string {
+	placetype, _ := r.result["placetype"]
 	return placetype
 }
 
-func (r CSVResult) WOFCountry() string {
+func (r MetaResult) WOFCountry() string {
 	country, _ := r.result["wof_country"]
 	return country
 }
 
-func (r CSVResult) WOFRepo() string {
-	repo, _ := r.result["wof_repo"]
-	return repo
+func (r MetaResult) WOFRepo() string {
+	return ""
 }
 
-func (r CSVResult) Path() string {
+func (r MetaResult) Path() string {
 	path, _ := uri.Id2RelPath(int(r.WOFId()))
 	return path
 }
 
-func (r CSVResult) URI() string {
+func (r MetaResult) URI() string {
 	uri, _ := uri.Id2AbsPath("https://whosonfirst.mapzen.com/data", int(r.WOFId()))
 	return uri
 }

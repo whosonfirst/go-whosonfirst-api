@@ -1,6 +1,11 @@
 package response
 
-// See notes in response/meta.go (20170304/thisisaaronland)
+// See the way this is pretty much a line-for-line clone of csv.go ?
+// The only difference of substance is that it handles MetaResult
+// result thingies instead of CSVResult result thingies. I suppose
+// we could tweak this to accept/return some sort of generic CSVResult
+// interface thingy but that is not what we are doing today.. or
+// possibly ever (20170304/thisisaaronland)
 
 import (
 	"bytes"
@@ -15,13 +20,13 @@ import (
 	"strconv"
 )
 
-type CSVResponse struct {
+type MetaResponse struct {
 	api.APIResponse
 	raw        []byte
-	pagination CSVPagination
+	pagination MetaPagination
 }
 
-type CSVPagination struct {
+type MetaPagination struct {
 	page       int
 	pages      int
 	per_page   int
@@ -30,51 +35,51 @@ type CSVPagination struct {
 	next_query string
 }
 
-func (p CSVPagination) Page() int {
+func (p MetaPagination) Page() int {
 	return p.page
 }
 
-func (p CSVPagination) Pages() int {
+func (p MetaPagination) Pages() int {
 	return p.pages
 }
 
-func (p CSVPagination) PerPage() int {
+func (p MetaPagination) PerPage() int {
 	return p.per_page
 }
 
-func (p CSVPagination) Total() int {
+func (p MetaPagination) Total() int {
 	return p.total
 }
 
-func (p CSVPagination) Cursor() string {
+func (p MetaPagination) Cursor() string {
 	return p.cursor
 }
 
-func (p CSVPagination) NextQuery() string {
+func (p MetaPagination) NextQuery() string {
 	return p.next_query
 }
 
-func (p CSVPagination) String() string {
+func (p MetaPagination) String() string {
 	return fmt.Sprintf("total %d page %d/%d (%d per page) cursor %s next_query %s", p.Total(), p.Page(), p.Pages(), p.PerPage(), p.Cursor(), p.NextQuery())
 }
 
-func (rsp CSVResponse) Raw() []byte {
+func (rsp MetaResponse) Raw() []byte {
 	return rsp.raw
 }
 
-func (rsp CSVResponse) String() string {
+func (rsp MetaResponse) String() string {
 	return string(rsp.raw)
 }
 
-func (rsp CSVResponse) Ok() (bool, api.APIError) {
+func (rsp MetaResponse) Ok() (bool, api.APIError) {
 	return true, nil
 }
 
-func (rsp CSVResponse) Pagination() (api.APIPagination, error) {
+func (rsp MetaResponse) Pagination() (api.APIPagination, error) {
 	return rsp.pagination, nil
 }
 
-func (rsp CSVResponse) Results() ([]api.APIResult, error) {
+func (rsp MetaResponse) Results() ([]api.APIResult, error) {
 
 	results := make([]api.APIResult, 0)
 
@@ -97,7 +102,7 @@ func (rsp CSVResponse) Results() ([]api.APIResult, error) {
 			return results, err
 		}
 
-		_result, err := result.NewCSVResult(row)
+		_result, err := result.NewMetaResult(row)
 
 		if err != nil {
 			return results, err
@@ -109,7 +114,7 @@ func (rsp CSVResponse) Results() ([]api.APIResult, error) {
 	return results, nil
 }
 
-func ParseCSVResponse(http_rsp *http.Response) (*CSVResponse, error) {
+func ParseMetaResponse(http_rsp *http.Response) (*MetaResponse, error) {
 
 	raw, err := util.HTTPResponseToBytes(http_rsp)
 
@@ -154,7 +159,7 @@ func ParseCSVResponse(http_rsp *http.Response) (*CSVResponse, error) {
 		return nil, err
 	}
 
-	pg := CSVPagination{
+	pg := MetaPagination{
 		page:       page,
 		pages:      pages,
 		per_page:   per_page,
@@ -163,7 +168,7 @@ func ParseCSVResponse(http_rsp *http.Response) (*CSVResponse, error) {
 		next_query: next_query,
 	}
 
-	rsp := CSVResponse{
+	rsp := MetaResponse{
 		raw:        raw,
 		pagination: pg,
 	}
