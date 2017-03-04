@@ -12,7 +12,7 @@ import (
 	"net/http"
 )
 
-func HTTPResponseToBytes(http_rsp *http.Response) ([]byte, error) {
+func HTTPResponseToReader(http_rsp *http.Response) (io.Reader, error) {
 
 	var body io.Reader
 	var err error
@@ -31,10 +31,21 @@ func HTTPResponseToBytes(http_rsp *http.Response) ([]byte, error) {
 		body = http_rsp.Body
 	}
 
-	http_body, io_err := ioutil.ReadAll(body)
+	return body, nil
+}
 
-	if io_err != nil {
-		return nil, io_err
+func HTTPResponseToBytes(http_rsp *http.Response) ([]byte, error) {
+
+	body, err := HTTPResponseToReader(http_rsp)
+
+	if err != nil {
+		return nil, err
+	}
+
+	http_body, err := ioutil.ReadAll(body)
+
+	if err != nil {
+		return nil, err
 	}
 
 	return http_body, nil

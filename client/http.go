@@ -91,6 +91,8 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 
 	case "":
 		rsp, parse_err = response.ParseJSONResponse(http_rsp)
+	case "csv":
+		rsp, parse_err = response.ParseCSVResponse(http_rsp)		
 	case "json":
 		rsp, parse_err = response.ParseJSONResponse(http_rsp)
 	default:
