@@ -108,6 +108,8 @@ Usage of ./bin/wof-api:
 
 #### Example
 
+![](images/sf-venues.png)
+
 Fetch all 63, 387 venues in [San Francisco](https://whosonfirst.mapzen.com/spelunker/id/85922583/) as a single GeoJSON `FeatureCollection`.
 
 ```
@@ -125,6 +127,16 @@ Here's what's going on:
 * Do so in batches of 500 and handle pagination automatically _by passing the `-param per_page=500` and `-paginated` flags respectively_.
 * For each result fetch the source GeoJSON file over the network, and do so asynchronously, creating a new `FeatureCollection` and save it as `venues.geojson` _by passing the `-geojson`, `-async` and `-output venues.geojson` flags, respectively_.
 * Print how long the whole thing takes _by passing the `-timings` flag_.
+
+You could also do the same by calling the `whosonfirst.places.getDescendants` API method, like this:
+
+```
+./bin/wof-api -param method=whosonfirst.places.getDescendants -param id=85922583 -param api_key=mapzen-XXXXXX -param per_page=500 -param placetype=venue -paginated -geojson -output descendants.geojson -timings -async
+2017/03/03 17:56:14 Failed to retrieve https://whosonfirst.mapzen.com/data/110/880/049/1/1108800491.geojson because 404 Not Found
+2017/03/03 17:56:14 Failed to retrieve https://whosonfirst.mapzen.com/data/110/880/049/3/1108800493.geojson because 404 Not Found
+2017/03/03 17:56:14 Failed to retrieve https://whosonfirst.mapzen.com/data/110/882/755/7/1108827557.geojson because 404 Not Found
+2017/03/03 17:56:15 time to 'whosonfirst.places.getDescendants': 5m16.811679531s
+```
 
 ## See also
 
