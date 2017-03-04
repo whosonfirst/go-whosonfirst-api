@@ -123,10 +123,10 @@ Fetch all 63, 387 venues in [San Francisco](https://whosonfirst.mapzen.com/spelu
 
 Here's what's going on:
 
-* Fetch all the venues that are in [San Francisco](https://whosonfirst.mapzen.com/spelunker/id/85922583/) _by passing the `-param placetype=venue` and `-param locality_id=85922583` flags, respectively_.
-* Do so in batches of 500 and handle pagination automatically _by passing the `-param per_page=500` and `-paginated` flags respectively_.
-* For each result fetch the source GeoJSON file over the network, and do so asynchronously, creating a new `FeatureCollection` and save it as `venues.geojson` _by passing the `-geojson`, `-async` and `-output venues.geojson` flags, respectively_.
-* Print how long the whole thing takes _by passing the `-timings` flag_.
+* Fetch all the venues that are in [San Francisco](https://whosonfirst.mapzen.com/spelunker/id/85922583/) by passing the `-param placetype=venue` and `-param locality_id=85922583` flags, respectively.
+* Do so in batches of 500 and handle pagination automatically by passing the `-param per_page=500` and `-paginated` flags respectively.
+* For each result fetch the source GeoJSON file over the network, and do so asynchronously, creating a new `FeatureCollection` and save it as `venues.geojson` by passing the `-geojson`, `-async` and `-output venues.geojson` flags, respectively.
+* Print how long the whole thing takes by passing the `-timings` flag.
 
 You could also do the same by calling the `whosonfirst.places.getDescendants` API method, like this:
 
@@ -138,7 +138,7 @@ You could also do the same by calling the `whosonfirst.places.getDescendants` AP
 2017/03/03 17:56:15 time to 'whosonfirst.places.getDescendants': 5m16.811679531s
 ```
 
-If you're wondering about the `-geojson` flag it's useful because the Who's On First API returns a minimum subset of a record's properties by default and does return geometries at all (at least not yet). For example, here's what a default API response for a place looks like:
+If you're wondering about the `-geojson` flag it's useful because the Who's On First API returns a minimum subset of a record's properties by default and does not return geometries at all (at least not yet). For example, here's what a default API response for a place looks like:
 
 ```
 {
@@ -151,7 +151,7 @@ If you're wondering about the `-geojson` flag it's useful because the Who's On F
 }
 ```																					
 
-The `-geojson` flag will instruct the `wof-api` tool to determine the fully qualified URL for a record – for example `202863435` becomes `https://whosonfirst.mapzen.com/data/202/863/435/202863435.geojson` – and then fetch the contents of that file and use that (rather than the default response above) in your final output.
+The `-geojson` flag will instruct the `wof-api` tool to determine the fully qualified URL for a record – for example `202863435` becomes `https://whosonfirst.mapzen.com/data/202/863/435/202863435.geojson` – and then fetch [the contents of that file](https://whosonfirst.mapzen.com/data/202/863/435/202863435.geojson) and use that (rather than the default response above) in your final output.
 
 ## See also
 
