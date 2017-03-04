@@ -1,7 +1,7 @@
 package result
 
 import (
-       "bytes"
+	"bytes"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-csv"
 	"github.com/whosonfirst/go-whosonfirst-uri"
@@ -24,8 +24,8 @@ func NewCSVResult(result map[string]string) (*CSVResult, error) {
 
 func (r CSVResult) String() string {
 
-     fieldnames := make([]string, 0)
-     
+	fieldnames := make([]string, 0)
+
 	for k, _ := range r.result {
 		fieldnames = append(fieldnames, k)
 	}
@@ -35,9 +35,9 @@ func (r CSVResult) String() string {
 	writer, err := csv.NewDictWriter(buf, fieldnames)
 
 	if err != nil {
-	   return ""
+		return ""
 	}
-	
+
 	writer.WriteHeader()
 	writer.WriteRow(r.result)
 

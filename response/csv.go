@@ -1,12 +1,12 @@
 package response
 
 import (
-       "bytes"
+	"bytes"
 	_ "errors"
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/result"
-	"github.com/whosonfirst/go-whosonfirst-api/util"	
+	"github.com/whosonfirst/go-whosonfirst-api/util"
 	"github.com/whosonfirst/go-whosonfirst-csv"
 	"io"
 	_ "log"
@@ -16,7 +16,7 @@ import (
 
 type CSVResponse struct {
 	api.APIResponse
-	raw []byte
+	raw        []byte
 	pagination CSVPagination
 }
 
@@ -99,12 +99,12 @@ func (rsp CSVResponse) Pagination() (api.APIPagination, error) {
 func (rsp CSVResponse) Results() ([]api.APIResult, error) {
 
 	results := make([]api.APIResult, 0)
-	
+
 	byte_reader := bytes.NewReader(rsp.raw)
 	reader, err := csv.NewDictReader(byte_reader)
 
 	if err != nil {
-	   return results, err
+		return results, err
 	}
 
 	for {
@@ -141,12 +141,16 @@ func ParseCSVResponse(http_rsp *http.Response) (*CSVResponse, error) {
 
 	header := http_rsp.Header
 
-	str_page := header.Get("X-api-pagination-page")
-	str_pages := header.Get("X-api-pagination-pages")
-	str_per_page := header.Get("X-api-pagination-per-page")
-	str_total := header.Get("X-api-pagination-total")
-	cursor := header.Get("X-api-pagination-cursor")
-	next_query := header.Get("X-api-pagination-next-query")
+	str_page := header.Get("X-Api-Pagination-Page")
+	str_pages := header.Get("X-Api-Pagination-Pages")
+	str_per_page := header.Get("X-Api-Pagination-Per-Page")
+	str_total := header.Get("X-Api-Pagination-Total")
+	cursor := header.Get("X-Api-Pagination-Cursor")
+	next_query := header.Get("X-Api-Pagination-Next-Query")
+
+	if str_page == "" {
+		str_page = "1"
+	}
 
 	page, err := strconv.Atoi(str_page)
 
