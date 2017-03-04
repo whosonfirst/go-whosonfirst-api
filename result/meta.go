@@ -22,7 +22,7 @@ func NewMetaResult(result map[string]string) (*MetaResult, error) {
 	return &r, nil
 }
 
-func (r MetaResult) String() string {
+func (r MetaResult) String(flags ...api.APIResultFlag) string {
 
 	fieldnames := make([]string, 0)
 

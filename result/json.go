@@ -20,7 +20,7 @@ func NewJSONResult(result gjson.Result) (*JSONResult, error) {
 	return &r, nil
 }
 
-func (r JSONResult) String() string {
+func (r JSONResult) String(flags ...api.APIResultFlag) string {
 	return r.result.String()
 }
 

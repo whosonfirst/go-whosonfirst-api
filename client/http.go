@@ -83,10 +83,6 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 	var rsp api.APIResponse
 	var parse_err error
 
-	// TO FIGURE OUT: csv and meta formats will need to be passed
-	// headers or something because that is where all the pagination
-	// stuff will be stored (20170301/thisisaaronland)
-
 	switch params.Get("format") {
 
 	case "":
@@ -157,7 +153,7 @@ func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Valu
 			return cb_err
 		}
 
-		if next_query == "null" {
+		if next_query == "null" || next_query == "" {
 			break
 		}
 

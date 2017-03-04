@@ -19,7 +19,8 @@ func main() {
 	flag.Var(&api_params, "param", "One or more Who's On First API query=value parameters.")
 
 	var stdout = flag.Bool("stdout", false, "Write API results to STDOUT")
-	var geojson = flag.Bool("geojson", false, "Transform API results to source GeoJSON for each Who's On First place.")
+	var geojson = flag.Bool("geojson", false, "Transform API results to source GeoJSON for each API result.")
+	var csv = flag.Bool("csv", false, "Transform API results to source CSV for each API result.")
 	var raw = flag.Bool("raw", false, "Dump raw Who's On First API responses.")
 	var async = flag.Bool("async", false, "Process API results asynchronously. If true then any errors processing a response are reported by will not stop execution.")
 	var timings = flag.Bool("timings", false, "Track and report total time to invoke an API method. Timings are printed to STDOUT.")
@@ -76,9 +77,6 @@ func main() {
 
 	if *geojson {
 
-		// sudo reconcile with same-same code for *raw below
-		// (20170304/thisisaaronland)
-
 		dest := os.Stdout
 
 		if *output != "" {
@@ -99,6 +97,31 @@ func main() {
 		}
 
 		writers = append(writers, wr)
+
+	} else if *csv {
+
+		dest := os.Stdout
+
+		if *output != "" {
+
+			fh, err := os.OpenFile(*output, os.O_RDWR|os.O_CREATE, 0644)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			dest = fh
+		}
+
+		wr, err := writer.NewCSVWriter(dest)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		writers = append(writers, wr)
+
+	} else {
 	}
 
 	if *stdout {
@@ -151,20 +174,17 @@ func main() {
 
 	if *raw {
 
-		// sudo reconcile with same-same code for *geojson above
-		// (20170304/thisisaaronland)
-
 		dest := os.Stdout
 
 		if *output != "" {
 
-			f, err := os.OpenFile(*output, os.O_RDWR|os.O_CREATE, 0644)
+			fh, err := os.OpenFile(*output, os.O_RDWR|os.O_CREATE, 0644)
 
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			dest = f
+			dest = fh
 		}
 
 		cb = func(rsp api.APIResponse) error {

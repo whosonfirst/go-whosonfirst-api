@@ -50,6 +50,35 @@ type APIResult interface {
 	WOFRepo() string
 	Path() string
 	URI() string
+	String(...APIResultFlag) string
+}
+
+type APIResultFlag interface {
+	Key() string
+	Value() interface{}
+}
+
+type APIResultBooleanFlag struct {
+	APIResultFlag
+	FlKey   string
+	FlValue bool
+}
+
+func (fl APIResultBooleanFlag) Key() string {
+	return fl.FlKey
+}
+
+func (fl APIResultBooleanFlag) Value() interface{} {
+	return fl.FlValue
+}
+
+func NewAPIResultBooleanFlag(key string, flag bool) APIResultBooleanFlag {
+	fl := APIResultBooleanFlag{
+		FlKey:   key,
+		FlValue: flag,
+	}
+
+	return fl
 }
 
 type APIResultMultiWriter interface { // PLEASE RENAME ME...

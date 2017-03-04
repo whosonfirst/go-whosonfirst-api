@@ -22,7 +22,7 @@ func NewCSVResult(result map[string]string) (*CSVResult, error) {
 	return &r, nil
 }
 
-func (r CSVResult) String() string {
+func (r CSVResult) String(flags ...api.APIResultFlag) string {
 
 	fieldnames := make([]string, 0)
 
@@ -38,7 +38,10 @@ func (r CSVResult) String() string {
 		return ""
 	}
 
-	writer.WriteHeader()
+	if len(flags) > 0 && flags[0].Key() == "header" && flags[0].Value().(bool) {
+		writer.WriteHeader()
+	}
+
 	writer.WriteRow(r.result)
 
 	return buf.String()
