@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-api"
+	"github.com/whosonfirst/go-whosonfirst-api/mapzen"
 	"github.com/whosonfirst/go-whosonfirst-api/response"
 	_ "log"
 	"net/http"
@@ -66,18 +67,27 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 
 	defer http_rsp.Body.Close()
 
-	switch http_rsp.StatusCode {
+	status_code := http_rsp.StatusCode
 
-	case 200:
-		// pass
-	case 201:
-		// pass
-	default:
+	if IsHTTPError(status_code) {
 
-		header := http_rsp.Header
-		msg := fmt.Sprintf("%s %s", header.Get("X-Api-Error-Code"), header.Get("X-Api-Error-Message"))
+		if IsWOFError(status_code) {
 
+			header := http_rsp.Header
+			msg := fmt.Sprintf("%s %s", header.Get("X-Api-Error-Code"), header.Get("X-Api-Error-Message"))
+
+			return nil, errors.New(msg)
+		}
+
+		rsp, err := mapzen.ParseMapzenResponse(http_rsp)
+
+		if err != nil {
+			return nil, errors.New(http_rsp.Status)
+		}
+
+		msg := fmt.Sprintf("%d %s", rsp.Meta.StatusCode, rsp.Results.Error.Message)
 		return nil, errors.New(msg)
+
 	}
 
 	var rsp api.APIResponse
@@ -173,4 +183,25 @@ func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Valu
 	}
 
 	return nil
+}
+
+func IsHTTPError(status_code int) bool {
+	return (status_code > 400 && status_code <= 599)
+}
+
+func IsWOFError(status_code int) bool {
+
+	if status_code == 450 {
+		return true
+	}
+
+	if status_code >= 452 && status_code <= 499 {
+		return true
+	}
+
+	if status_code == 512 {
+		return true
+	}
+
+	return false
 }

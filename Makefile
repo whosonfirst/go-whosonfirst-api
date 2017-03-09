@@ -12,6 +12,8 @@ self:   prep
 	cp client/*.go src/github.com/whosonfirst/go-whosonfirst-api/client/
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/endpoint
 	cp endpoint/*.go src/github.com/whosonfirst/go-whosonfirst-api/endpoint/
+	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/mapzen
+	cp mapzen/*.go src/github.com/whosonfirst/go-whosonfirst-api/mapzen/
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/response
 	cp response/*.go src/github.com/whosonfirst/go-whosonfirst-api/response/
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/result
@@ -46,6 +48,7 @@ fmt:
 	go fmt client/*.go
 	go fmt cmd/*.go
 	go fmt endpoint/*.go
+	go fmt mapzen/*.go
 	go fmt response/*.go
 	go fmt result/*.go
 	go fmt util/*.go
