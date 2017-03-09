@@ -79,15 +79,18 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 			return nil, errors.New(msg)
 		}
 
-		rsp, err := mapzen.ParseMapzenResponse(http_rsp)
+		if IsMapzenError(status_code) {
 
-		if err != nil {
-			return nil, errors.New(http_rsp.Status)
+			rsp, err := mapzen.ParseMapzenResponse(http_rsp)
+
+			if err != nil {
+				msg := fmt.Sprintf("%d %s", rsp.Meta.StatusCode, rsp.Results.Error.Message)
+				return nil, errors.New(msg)
+
+			}
 		}
 
-		msg := fmt.Sprintf("%d %s", rsp.Meta.StatusCode, rsp.Results.Error.Message)
-		return nil, errors.New(msg)
-
+		return nil, errors.New(http_rsp.Status)
 	}
 
 	var rsp api.APIResponse
@@ -187,6 +190,27 @@ func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Valu
 
 func IsHTTPError(status_code int) bool {
 	return (status_code > 400 && status_code <= 599)
+}
+
+func IsMapzenError(status_code int) bool {
+
+	if status_code >= 400 && status_code <= 404 {
+		return true
+	}
+
+	if status_code == 429 {
+		return true
+	}
+
+	if status_code == 502 {
+		return true
+	}
+
+	if status_code == 504 {
+		return true
+	}
+
+	return false
 }
 
 func IsWOFError(status_code int) bool {
