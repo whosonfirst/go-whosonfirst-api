@@ -14,25 +14,34 @@ import (
 
 type HTTPClient struct {
 	api.APIClient
-	endpoint api.APIEndpoint
-	qpslimit int
-	qpmlimit int
-	qphlimit int
-	qpscount int
-	qpmcount int
-	qphcount int
+	endpoint    api.APIEndpoint
+	qpslimit    int
+	qpmlimit    int
+	qphlimit    int
+	qpscount    int
+	qpmcount    int
+	qphcount    int
+	http_client *http.Client
 }
 
 func NewHTTPClient(endpoint api.APIEndpoint) (*HTTPClient, error) {
 
+	tr := &http.Transport{
+		MaxIdleConns:    10,
+		IdleConnTimeout: 30 * time.Second,
+	}
+
+	http_client := &http.Client{Transport: tr}
+
 	cl := HTTPClient{
-		endpoint: endpoint,
-		qpslimit: 6,
-		qpmlimit: 30,
-		qphlimit: 1000,
-		qpscount: 0,
-		qpmcount: 0,
-		qphcount: 0,
+		endpoint:    endpoint,
+		qpslimit:    6,
+		qpmlimit:    30,
+		qphlimit:    1000,
+		qpscount:    0,
+		qpmcount:    0,
+		qphcount:    0,
+		http_client: http_client,
 	}
 
 	// TO DO: set up a channel/throttle to block calls to ExecuteMethod
@@ -58,11 +67,11 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 
 	http_req.Header.Add("Accept-Encoding", "gzip")
 
-	http_client := &http.Client{}
-	http_rsp, http_err := http_client.Do(http_req)
+	http_rsp, http_err := client.http_client.Do(http_req)
 
 	if http_err != nil {
-		return nil, http_err
+		msg := fmt.Sprintf("HTTP request failed: %s", err.Error())
+		return nil, errors.New(msg)
 	}
 
 	defer http_rsp.Body.Close()
