@@ -163,17 +163,27 @@ type APIResultWriter interface {
 }
 ```
 
+As you can see from the interface above "writers" are currently targeted at API responses that can be massaged in to `api.APIPlacesResult` thingies.
+
 ### async
+
+Like the `multi` writer the `async` writer begs the question: Is this a "writer" or something else? This is a container writer that allows you to define multiple writer targets for a single set of API results, where each response is processed concurrently. This can be useful when one of your writer targets is something like the `geojson` writer which needs to perform network requests.
 
 ### csv
 
+This writer will generate a new CSV output where each row is the value of the `api.APIPlacesResult` 's `String()` method.
+
 ### geojson
+
+This writer will go out over the network and fetch the source document (from [https://whosonfirst.mapzen.com/data](https://whosonfirst.mapzen.com/data)) for each API result and return a GeoJSON `FeatureCollection` (with all the results).
 
 ### multi
 
+Is this a "writer" or something else? This is a container writer that allows you to define multiple writer targets for a single set of API results.
+
 ### stdout
 
-Output is sent to the STDOUT as:
+This writer will format each API result and send it to STDOUT. Output is formatted as:
 
 ```
 text := fmt.Sprintf("%d %s %s\n", r.WOFId(), r.WOFPlacetype(), r.WOFName())
@@ -181,7 +191,7 @@ text := fmt.Sprintf("%d %s %s\n", r.WOFId(), r.WOFPlacetype(), r.WOFName())
 
 ### tts
 
-Output is sent to the text-to-speech engine as:
+This writer will format each API result and send it to a text-to-speech engine supported by the [go-writer-tts](https://github.com/whosonfirst/go-writer-tts) package (which still needs to be documented properly). Output is formatted as:
 
 ```
 text := fmt.Sprintf("%s is a %s with Who's On First ID %d", r.WOFName(), r.WOFPlacetype(), r.WOFId())
