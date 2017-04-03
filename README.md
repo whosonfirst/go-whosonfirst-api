@@ -1,6 +1,6 @@
 # go-whosonfirst-api
 
-Go package for working with Who's On First API.
+Go package for working with the [Who's On First API](https://mapzen.com/documentation/wof/).
 
 ## Install
 
