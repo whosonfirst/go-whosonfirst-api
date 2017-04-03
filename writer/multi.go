@@ -13,7 +13,7 @@ type APIResultMultiWriterSync struct {
 	writers []api.APIResultWriter
 }
 
-func (mw *APIResultMultiWriterSync) Write(r api.APIResult) (int, error) {
+func (mw *APIResultMultiWriterSync) Write(r api.APIPlacesResult) (int, error) {
 
 	var p int
 

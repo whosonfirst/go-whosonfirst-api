@@ -16,7 +16,7 @@ func NewStdoutWriter() (*StdoutWriter, error) {
 	return &wr, nil
 }
 
-func (wr *StdoutWriter) WriteResult(r api.APIResult) (int, error) {
+func (wr *StdoutWriter) WriteResult(r api.APIPlacesResult) (int, error) {
 
 	text := fmt.Sprintf("%d %s %s\n", r.WOFId(), r.WOFPlacetype(), r.WOFName())
 	return wr.Write([]byte(text))

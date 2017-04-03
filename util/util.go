@@ -51,7 +51,7 @@ func HTTPResponseToBytes(http_rsp *http.Response) ([]byte, error) {
 	return http_body, nil
 }
 
-func APIResultToGeoJSON(api_rsp api.APIResult) ([]byte, error) {
+func APIResultToGeoJSON(api_rsp api.APIPlacesResult) ([]byte, error) {
 
 	uri := api_rsp.URI()
 

@@ -33,7 +33,7 @@ func NewGeoJSONWriter(w io.Writer) (*GeoJSONWriter, error) {
 	return &wr, nil
 }
 
-func (wr *GeoJSONWriter) WriteResult(r api.APIResult) (int, error) {
+func (wr *GeoJSONWriter) WriteResult(r api.APIPlacesResult) (int, error) {
 
 	json, err := util.APIResultToGeoJSON(r)
 

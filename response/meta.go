@@ -79,9 +79,9 @@ func (rsp MetaResponse) Pagination() (api.APIPagination, error) {
 	return rsp.pagination, nil
 }
 
-func (rsp MetaResponse) Results() ([]api.APIResult, error) {
+func (rsp MetaResponse) Places() ([]api.APIPlacesResult, error) {
 
-	results := make([]api.APIResult, 0)
+	results := make([]api.APIPlacesResult, 0)
 
 	// not sure if this is the best idea but it will do for now...
 	// (20170304/thisisaaronland)

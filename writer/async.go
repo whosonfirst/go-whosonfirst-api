@@ -16,7 +16,7 @@ type APIResultMultiWriterAsync struct {
 	throttle chan bool
 }
 
-func (mw *APIResultMultiWriterAsync) Write(r api.APIResult) (int, error) {
+func (mw *APIResultMultiWriterAsync) Write(r api.APIPlacesResult) (int, error) {
 
 	for _, w := range mw.writers {
 
@@ -24,7 +24,7 @@ func (mw *APIResultMultiWriterAsync) Write(r api.APIResult) (int, error) {
 
 		mw.wg.Add(1)
 
-		go func(w api.APIResultWriter, r api.APIResult, throttle chan bool, wg *sync.WaitGroup) {
+		go func(w api.APIResultWriter, r api.APIPlacesResult, throttle chan bool, wg *sync.WaitGroup) {
 
 			defer func() {
 				throttle <- true

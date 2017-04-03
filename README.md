@@ -2,10 +2,6 @@
 
 Go package for working with Who's On First API.
 
-## Important
-
-Too soon, move along. Probably.
-
 ## Install
 
 You will need to have both `Go` and the `make` programs installed on your computer. Assuming you do just type:

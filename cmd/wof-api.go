@@ -159,7 +159,7 @@ func main() {
 
 	cb = func(rsp api.APIResponse) error {
 
-		results, err := rsp.Results()
+		results, err := rsp.Places()
 
 		if err != nil {
 			return err

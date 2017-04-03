@@ -7,7 +7,7 @@ import (
 )
 
 type JSONResult struct {
-	api.APIResult
+	api.APIPlacesResult
 	result gjson.Result
 }
 

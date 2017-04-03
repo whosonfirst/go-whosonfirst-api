@@ -10,7 +10,7 @@ import (
 )
 
 type CSVResult struct {
-	api.APIResult
+	api.APIPlacesResult
 	result map[string]string
 }
 
