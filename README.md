@@ -113,6 +113,80 @@ type APIPagination interface {
 }
 ```
 
+## Responses
+
+Generally you shouldn't have to think about parsing formatted API responses. The `api.APIClient` interface requires that implementations define an `ExecuteMethod` method that returns a corresponding `api.APIResponse` thingy, like this:
+
+```
+type APIClient interface {
+	ExecuteMethod(string, *url.Values) (APIResponse, error)
+	DefaultArgs() *url.Values
+}
+```
+
+And here's a snippet from the [client/http.go](https://github.com/whosonfirst/go-whosonfirst-api/blob/master/client/http.go) code:
+
+```
+var rsp api.APIResponse
+var parse_err error
+
+switch params.Get("format") {
+
+case "":
+	rsp, parse_err = response.ParseJSONResponse(http_rsp)
+case "csv":
+	rsp, parse_err = response.ParseCSVResponse(http_rsp)
+case "json":
+	rsp, parse_err = response.ParseJSONResponse(http_rsp)
+case "meta":
+	rsp, parse_err = response.ParseMetaResponse(http_rsp)
+default:
+	return nil, errors.New("Unsupported output format")
+}
+```
+
+## Writers
+
+"Writers" allow for API responses to be manipulated or output in a variety of formats. These interfaces should still be considered "wet paint" and works-in-progress if only because they have terrible names, like this:
+
+```
+type APIResultMultiWriter interface { // PLEASE RENAME ME...
+	Write(APIPlacesResult) (int, error)
+	Close()
+}
+
+type APIResultWriter interface {
+	Write([]byte) (int, error)
+	WriteString(string) (int, error)
+	WriteResult(APIPlacesResult) (int, error)
+	Close() error
+}
+```
+
+### async
+
+### csv
+
+### geojson
+
+### multi
+
+### stdout
+
+Output is sent to the STDOUT as:
+
+```
+text := fmt.Sprintf("%d %s %s\n", r.WOFId(), r.WOFPlacetype(), r.WOFName())
+```
+
+### tts
+
+Output is sent to the text-to-speech engine as:
+
+```
+text := fmt.Sprintf("%s is a %s with Who's On First ID %d", r.WOFName(), r.WOFPlacetype(), r.WOFId())
+```
+
 ## Tools
 
 ### wof-api
