@@ -69,6 +69,50 @@ cb := func(rsp api.APIResponse) error {
 c.ExecuteMethodPaginated(method, args, cb)
 ```
 
+## Interfaces
+
+Interfaces are still a bit of a moving target. Or more specifically existing interfaces that have been defined should not change but there also aren't interfaces for many types of WOF API responses. That's why the default `APIResponse` interface defines a `Raw()` that returns plain-vanilla bytes and leaves it as an exercise to consumers to figure out what to do with them.
+
+While all of the interfaces still need to be documented properly the most important ones are:
+
+```
+type APIResponse interface {
+	Raw() []byte
+	String() string
+	Ok() (bool, APIError)
+	Pagination() (APIPagination, error)
+	Places() ([]APIPlacesResult, error)
+}
+
+type APIPlacesResult interface {
+	WOFId() int64
+	WOFParentId() int64
+	WOFName() string
+	WOFPlacetype() string
+	WOFCountry() string
+	WOFRepo() string
+	Path() string
+	URI() string
+	String(...APIResultFlag) string
+}
+
+type APIError interface {
+	String() string
+	Code() int64
+	Message() string
+}
+
+type APIPagination interface {
+	String() string
+	Pages() int
+	Page() int
+	PerPage() int
+	Total() int
+	Cursor() string
+	NextQuery() string
+}
+```
+
 ## Tools
 
 ### wof-api
@@ -151,4 +195,4 @@ The `-geojson` flag will instruct the `wof-api` tool to determine the fully qual
 
 ## See also
 
-
+* https://mapzen.com/documentation/wof/
