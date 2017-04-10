@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-api"
+	"github.com/whosonfirst/go-whosonfirst-api/auth"
 	"github.com/whosonfirst/go-whosonfirst-api/client"
 	"github.com/whosonfirst/go-whosonfirst-api/endpoint"
 	"github.com/whosonfirst/go-whosonfirst-api/writer"
@@ -44,7 +45,13 @@ func main() {
 		log.Fatal("You forgot to specify a method")
 	}
 
-	e, err := endpoint.NewMapzenAPIEndpoint(api_key)
+	a, err := auth.NewAPIKeyAuthentication(api_key)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	e, err := endpoint.NewMapzenAPIEndpoint(a)
 
 	if err != nil {
 		log.Fatal(err)

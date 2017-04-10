@@ -13,15 +13,16 @@ type MapzenAPIEndpoint struct {
 	Host   string
 	Path   string
 	Key    string
+	auth   api.APIAuthentication
 }
 
-func NewMapzenAPIEndpoint(key string) (*MapzenAPIEndpoint, error) {
+func NewMapzenAPIEndpoint(auth api.APIAuthentication) (*MapzenAPIEndpoint, error) {
 
 	e := MapzenAPIEndpoint{
 		Scheme: "https",
 		Host:   "whosonfirst-api.mapzen.com",
 		Path:   "",
-		Key:    key,
+		auth:   auth,
 	}
 
 	return &e, nil
@@ -69,8 +70,14 @@ func (e *MapzenAPIEndpoint) NewRequest(params *url.Values) (*http.Request, error
 		return nil, err
 	}
 
-	params.Set("api_key", e.Key)
-	req.URL.RawQuery = (*params).Encode()
+	err = e.auth.AppendAuthentication(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// params.Set("api_key", e.Key)
+	// req.URL.RawQuery = (*params).Encode()
 
 	return req, nil
 }

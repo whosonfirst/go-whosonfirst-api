@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"errors"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"net/http"
 )
@@ -24,7 +23,7 @@ func (au *AccessTokenAuthentication) AppendAuthentication(req *http.Request) err
 
 	params := req.URL.Query()
 	params.Set("access_token", au.access_token)
-	req.URL.RawQuery = (*params).Encode()
+	req.URL.RawQuery = params.Encode()
 
 	return nil
 }

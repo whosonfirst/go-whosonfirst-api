@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"errors"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"net/http"
 )
@@ -14,7 +13,7 @@ type APIKeyAuthentication struct {
 func NewAPIKeyAuthentication(key string) (*APIKeyAuthentication, error) {
 
 	au := APIKeyAuthentication{
-		api_key: token,
+		api_key: key,
 	}
 
 	return &au, nil
@@ -24,7 +23,7 @@ func (au *APIKeyAuthentication) AppendAuthentication(req *http.Request) error {
 
 	params := req.URL.Query()
 	params.Set("api_key", au.api_key)
-	req.URL.RawQuery = (*params).Encode()
+	req.URL.RawQuery = params.Encode()
 
 	return nil
 }
