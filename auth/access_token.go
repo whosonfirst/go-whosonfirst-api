@@ -1,31 +1,30 @@
 package auth
 
 import (
-       "errors"
-       	"github.com/whosonfirst/go-whosonfirst-api"
+	"errors"
+	"github.com/whosonfirst/go-whosonfirst-api"
 	"net/http"
 )
 
 type AccessTokenAuthentication struct {
-     api.APIAuthentication
-     access_token string
+	api.APIAuthentication
+	access_token string
 }
 
-func New AccessTokenAuthentication(token string) (*AccessTokenAuthentication, error) {
+func NewAccessTokenAuthentication(token string) (*AccessTokenAuthentication, error) {
 
-     au := AccessTokenAuthentication{
-     	access_token: token,
-     }
+	au := AccessTokenAuthentication{
+		access_token: token,
+	}
 
-     return &au, nil
+	return &au, nil
 }
 
-func (*au AccessTokenAuthentication) SetAuthentication(token string) error {
-     au.access_token = token
-     return nil
-}
+func (au *AccessTokenAuthentication) AppendAuthentication(req *http.Request) error {
 
-func (*au AccessTokenAuthentication) AddAuthentication(req *http.Request) error {
+	params := req.URL.Query()
+	params.Set("access_token", au.access_token)
+	req.URL.RawQuery = (*params).Encode()
 
-     return errors.New("Please write me")
+	return nil
 }

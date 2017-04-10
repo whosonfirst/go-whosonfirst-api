@@ -8,8 +8,7 @@ import (
 )
 
 type APIAuthentication interface {
-	AddAutentication(*http.Request) error
-	SetAuthentication(string) error
+	AppendAutentication(*http.Request) error
 }
 
 type APIEndpoint interface {
