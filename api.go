@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+type APIAuthentication interface {
+	AddAutentication(*http.Request) error
+	SetAuthentication(string) error
+}
+
 type APIEndpoint interface {
 	URL() (*url.URL, error)
 	NewRequest(*url.Values) (*http.Request, error)

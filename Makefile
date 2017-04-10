@@ -8,6 +8,8 @@ prep:
 
 self:   prep
 	if test -d src/github.com/whosonfirst/go-whosonfirst-api; then rm -rf src/github.com/whosonfirst/go-whosonfirst-api; fi
+	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/auth
+	cp auth/*.go src/github.com/whosonfirst/go-whosonfirst-api/auth/
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/client
 	cp client/*.go src/github.com/whosonfirst/go-whosonfirst-api/client/
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/endpoint
@@ -45,6 +47,7 @@ vendor-deps: rmdeps deps
 
 fmt:
 	go fmt api.go
+	go fmt auth/*.go
 	go fmt client/*.go
 	go fmt cmd/*.go
 	go fmt endpoint/*.go
