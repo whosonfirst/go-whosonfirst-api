@@ -110,7 +110,7 @@ func (rsp JSONResponse) Results() ([]api.APIResult, error) {
 
 	results := make([]api.APIResult, 0)
 
-	_results := rsp.get("results")
+	_results := rsp.get("places")
 
 	// TO DO: signal failed NewJSONResult
 

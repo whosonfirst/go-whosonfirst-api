@@ -21,6 +21,7 @@ func main() {
 	var stdout = flag.Bool("stdout", false, "Write API results to STDOUT")
 	var geojson = flag.Bool("geojson", false, "Transform API results to source GeoJSON for each API result.")
 	var csv = flag.Bool("csv", false, "Transform API results to source CSV for each API result.")
+	var filelist = flag.Bool("filelist", false, "Transform API results to a WOF \"file list\".")
 	var raw = flag.Bool("raw", false, "Dump raw Who's On First API responses.")
 	var async = flag.Bool("async", false, "Process API results asynchronously. If true then any errors processing a response are reported by will not stop execution.")
 	var timings = flag.Bool("timings", false, "Track and report total time to invoke an API method. Timings are printed to STDOUT.")
@@ -75,6 +76,9 @@ func main() {
 		writers = append(writers, ts)
 	}
 
+	// please reconcile -csv -geojson -filelist etc.
+	// https://github.com/whosonfirst/go-whosonfirst-api/issues/4
+
 	if *geojson {
 
 		dest := os.Stdout
@@ -114,6 +118,29 @@ func main() {
 		}
 
 		wr, err := writer.NewCSVWriter(dest)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		writers = append(writers, wr)
+
+	} else if *filelist {
+
+		dest := os.Stdout
+
+		if *output != "" {
+
+			fh, err := os.OpenFile(*output, os.O_RDWR|os.O_CREATE, 0644)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			dest = fh
+		}
+
+		wr, err := writer.NewFileListWriter(dest)
 
 		if err != nil {
 			log.Fatal(err)
@@ -162,6 +189,7 @@ func main() {
 		results, err := rsp.Results()
 
 		if err != nil {
+			log.Println(err)
 			return err
 		}
 
