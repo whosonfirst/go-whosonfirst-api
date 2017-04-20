@@ -27,7 +27,7 @@ func NewCSVWriter(w io.Writer) (*CSVWriter, error) {
 	return &wr, nil
 }
 
-func (wr *CSVWriter) WriteResult(r api.APIResult) (int, error) {
+func (wr *CSVWriter) WriteResult(r api.APIPlacesResult) (int, error) {
 
 	wr.mu.Lock()
 	defer wr.mu.Unlock()

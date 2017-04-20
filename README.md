@@ -1,14 +1,10 @@
 # go-whosonfirst-api
 
-Go package for working with Who's On First API.
-
-## Important
-
-Too soon, move along. Probably.
+Go package for working with the [Who's On First API](https://mapzen.com/documentation/wof/).
 
 ## Install
 
-You will need to have both `Go` and the `make` programs installed on your computer. Assuming you do just type:
+You will need to have both `Go` (specifically a version of Go more recent than 1.6 so let's just assume you need [Go 1.8](https://golang.org/dl/) or higher) and the `make` programs installed on your computer. Assuming you do just type:
 
 ```
 make bin
@@ -71,6 +67,134 @@ cb := func(rsp api.APIResponse) error {
 }
 
 c.ExecuteMethodPaginated(method, args, cb)
+```
+
+## Interfaces
+
+Interfaces are still a bit of a moving target. Or more specifically existing interfaces that have been defined should not change but there also aren't interfaces for many types of WOF API responses. That's why the default `APIResponse` interface defines a `Raw()` that returns plain-vanilla bytes and leaves it as an exercise to consumers to figure out what to do with them.
+
+While all of the interfaces still need to be documented properly the most important ones are:
+
+```
+type APIResponse interface {
+	Raw() []byte
+	String() string
+	Ok() (bool, APIError)
+	Pagination() (APIPagination, error)
+	Places() ([]APIPlacesResult, error)
+}
+
+type APIPlacesResult interface {
+	WOFId() int64
+	WOFParentId() int64
+	WOFName() string
+	WOFPlacetype() string
+	WOFCountry() string
+	WOFRepo() string
+	Path() string
+	URI() string
+	String(...APIResultFlag) string
+}
+
+type APIError interface {
+	String() string
+	Code() int64
+	Message() string
+}
+
+type APIPagination interface {
+	String() string
+	Pages() int
+	Page() int
+	PerPage() int
+	Total() int
+	Cursor() string
+	NextQuery() string
+}
+```
+
+## Responses
+
+Generally you shouldn't have to think about parsing formatted API responses. The `api.APIClient` interface requires that implementations define an `ExecuteMethod` method that returns a corresponding `api.APIResponse` thingy, like this:
+
+```
+type APIClient interface {
+	ExecuteMethod(string, *url.Values) (APIResponse, error)
+	DefaultArgs() *url.Values
+}
+```
+
+And here's a snippet from the [client/http.go](https://github.com/whosonfirst/go-whosonfirst-api/blob/master/client/http.go) code:
+
+```
+var rsp api.APIResponse
+var parse_err error
+
+switch params.Get("format") {
+
+case "":
+	rsp, parse_err = response.ParseJSONResponse(http_rsp)
+case "csv":
+	rsp, parse_err = response.ParseCSVResponse(http_rsp)
+case "json":
+	rsp, parse_err = response.ParseJSONResponse(http_rsp)
+case "meta":
+	rsp, parse_err = response.ParseMetaResponse(http_rsp)
+default:
+	return nil, errors.New("Unsupported output format")
+}
+```
+
+## Writers
+
+"Writers" allow for API responses to be manipulated or output in a variety of formats. These interfaces should still be considered "wet paint" and works-in-progress if only because they have terrible names, like this:
+
+```
+type APIResultMultiWriter interface { // PLEASE RENAME ME...
+	Write(APIPlacesResult) (int, error)
+	Close()
+}
+
+type APIResultWriter interface {
+	Write([]byte) (int, error)
+	WriteString(string) (int, error)
+	WriteResult(APIPlacesResult) (int, error)
+	Close() error
+}
+```
+
+As you can see from the interface above "writers" are currently targeted at API responses that can be massaged in to `api.APIPlacesResult` thingies.
+
+### async
+
+Like the `multi` writer the `async` writer begs the question: Is this a "writer" or something else? This is a container writer that allows you to define multiple writer targets for a single set of API results, where each response is processed concurrently. This can be useful when one of your writer targets is something like the `geojson` writer which needs to perform network requests.
+
+### csv
+
+This writer will generate a new CSV output where each row is the value of the `api.APIPlacesResult` 's `String()` method.
+
+### geojson
+
+This writer will go out over the network and fetch the source document (from [https://whosonfirst.mapzen.com/data](https://whosonfirst.mapzen.com/data)) for each API result and return a GeoJSON `FeatureCollection` (with all the results).
+
+### multi
+
+Is this a "writer" or something else? This is a container writer that allows you to define multiple writer targets for a single set of API results.
+
+### stdout
+
+This writer will format each API result and send it to STDOUT. Output is formatted as:
+
+```
+text := fmt.Sprintf("%d %s %s\n", r.WOFId(), r.WOFPlacetype(), r.WOFName())
+```
+
+### tts
+
+This writer will format each API result and send it to a text-to-speech engine supported by the [go-writer-tts](https://github.com/whosonfirst/go-writer-tts) package (which still needs to be documented properly). Output is formatted as:
+
+```
+text := fmt.Sprintf("%s is a %s with Who's On First ID %d", r.WOFName(), r.WOFPlacetype(), r.WOFId())
 ```
 
 ## Tools
@@ -155,4 +279,4 @@ The `-geojson` flag will instruct the `wof-api` tool to determine the fully qual
 
 ## See also
 
-
+* https://mapzen.com/documentation/wof/

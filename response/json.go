@@ -92,9 +92,6 @@ func (rsp JSONResponse) Ok() (bool, api.APIError) {
 		return true, nil
 	}
 
-	// TO DO: support this stuff
-	// {"meta":{"version":1,"status_code":429},"results":{"error":{"type":"QpsExceededError","message":"Queries per second exceeded: Queries exceeded (1 allowed)."}}}
-
 	code := rsp.get("error.code")
 	msg := rsp.get("error.message")
 
@@ -106,9 +103,9 @@ func (rsp JSONResponse) Ok() (bool, api.APIError) {
 	return false, &err
 }
 
-func (rsp JSONResponse) Results() ([]api.APIResult, error) {
+func (rsp JSONResponse) Places() ([]api.APIPlacesResult, error) {
 
-	results := make([]api.APIResult, 0)
+	results := make([]api.APIPlacesResult, 0)
 
 	_results := rsp.get("places")
 

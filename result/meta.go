@@ -9,7 +9,7 @@ import (
 )
 
 type MetaResult struct {
-	api.APIResult
+	api.APIPlacesResult
 	result map[string]string
 }
 

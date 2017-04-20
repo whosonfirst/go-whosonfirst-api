@@ -28,7 +28,7 @@ func NewTTSWriter(engine string) (*TTSWriter, error) {
 	return &tw, nil
 }
 
-func (w *TTSWriter) WriteResult(r api.APIResult) (int, error) {
+func (w *TTSWriter) WriteResult(r api.APIPlacesResult) (int, error) {
 
 	text := fmt.Sprintf("%s is a %s with Who's On First ID %d", r.WOFName(), r.WOFPlacetype(), r.WOFId())
 	return w.Write([]byte(text))

@@ -23,7 +23,7 @@ type APIResponse interface {
 	String() string
 	Ok() (bool, APIError)
 	Pagination() (APIPagination, error)
-	Results() ([]APIResult, error)
+	Places() ([]APIPlacesResult, error)
 }
 
 type APIError interface {
@@ -42,7 +42,7 @@ type APIPagination interface {
 	NextQuery() string
 }
 
-type APIResult interface {
+type APIPlacesResult interface {
 	WOFId() int64
 	WOFParentId() int64
 	WOFName() string
@@ -116,14 +116,14 @@ func NewAPIResultBooleanFlag(key string, flag bool) APIResultBooleanFlag {
 }
 
 type APIResultMultiWriter interface { // PLEASE RENAME ME...
-	Write(APIResult) (int, error)
+	Write(APIPlacesResult) (int, error)
 	Close()
 }
 
 type APIResultWriter interface {
 	Write([]byte) (int, error)
 	WriteString(string) (int, error)
-	WriteResult(APIResult) (int, error)
+	WriteResult(APIPlacesResult) (int, error)
 	Close() error
 }
 

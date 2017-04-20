@@ -70,7 +70,7 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 	http_rsp, http_err := client.http_client.Do(http_req)
 
 	if http_err != nil {
-		msg := fmt.Sprintf("HTTP request failed: %s", err.Error())
+		msg := fmt.Sprintf("HTTP request failed: %s", http_err.Error())
 		return nil, errors.New(msg)
 	}
 
