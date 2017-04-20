@@ -5,6 +5,7 @@ import (
 	"io"
 	_ "log"
 	"path/filepath"
+	"strings"
 	"sync"
 )
 
@@ -38,7 +39,8 @@ func (wr *FileListWriter) WriteResult(r api.APIPlacesResult) (int, error) {
 	path := r.Path()
 
 	if wr.Prefix != "" {
-		path = filepath.Join(wr.Prefix, path)
+		prefix := strings.Replace(wr.Prefix, ":REPO:", r.WOFRepo(), 1)
+		path = filepath.Join(prefix, path)
 	}
 
 	n, err := wr.Write([]byte(path + "\n"))
