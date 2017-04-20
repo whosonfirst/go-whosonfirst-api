@@ -4,6 +4,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"io"
 	_ "log"
+	"path/filepath"
 	"sync"
 )
 
@@ -12,6 +13,7 @@ type FileListWriter struct {
 	features int
 	mu       *sync.Mutex
 	writer   io.Writer
+	Prefix   string
 }
 
 func NewFileListWriter(w io.Writer) (*FileListWriter, error) {
@@ -22,17 +24,22 @@ func NewFileListWriter(w io.Writer) (*FileListWriter, error) {
 		features: 0,
 		mu:       mu,
 		writer:   w,
+		Prefix:   "",
 	}
 
 	return &wr, nil
 }
 
-func (wr *FileListWriter) WriteResult(r api.APIResult) (int, error) {
+func (wr *FileListWriter) WriteResult(r api.APIPlacesResult) (int, error) {
 
 	wr.mu.Lock()
 	defer wr.mu.Unlock()
 
 	path := r.Path()
+
+	if wr.Prefix != "" {
+		path = filepath.Join(wr.Prefix, path)
+	}
 
 	n, err := wr.Write([]byte(path + "\n"))
 

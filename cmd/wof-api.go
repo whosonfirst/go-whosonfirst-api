@@ -22,6 +22,7 @@ func main() {
 	var geojson = flag.Bool("geojson", false, "Transform API results to source GeoJSON for each API result.")
 	var csv = flag.Bool("csv", false, "Transform API results to source CSV for each API result.")
 	var filelist = flag.Bool("filelist", false, "Transform API results to a WOF \"file list\".")
+	var filelist_prefix = flag.String("filelist-prefix", "", "Prepend each WOF \"file list\" result with this prefix.")
 	var raw = flag.Bool("raw", false, "Dump raw Who's On First API responses.")
 	var async = flag.Bool("async", false, "Process API results asynchronously. If true then any errors processing a response are reported by will not stop execution.")
 	var timings = flag.Bool("timings", false, "Track and report total time to invoke an API method. Timings are printed to STDOUT.")
@@ -145,6 +146,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		wr.Prefix = *filelist_prefix
 
 		writers = append(writers, wr)
 
