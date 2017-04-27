@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/tidwall/pretty"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/client"
 	"github.com/whosonfirst/go-whosonfirst-api/endpoint"
@@ -20,6 +21,7 @@ func main() {
 
 	var stdout = flag.Bool("stdout", false, "Write API results to STDOUT")
 	var geojson = flag.Bool("geojson", false, "Transform API results to source GeoJSON for each API result.")
+	var pretty_json = flag.Bool("pretty", false, "Pretty-print JSON results.")
 	var csv = flag.Bool("csv", false, "Transform API results to source CSV for each API result.")
 	var filelist = flag.Bool("filelist", false, "Transform API results to a WOF \"file list\".")
 	var filelist_prefix = flag.String("filelist-prefix", "", "Prepend each WOF \"file list\" result with this prefix.")
@@ -219,7 +221,13 @@ func main() {
 		}
 
 		cb = func(rsp api.APIResponse) error {
-			_, err = dest.Write(rsp.Raw())
+
+			raw := rsp.Raw()
+
+			if *pretty_json {
+				raw = pretty.Pretty(raw)
+			}
+			_, err = dest.Write(raw)
 			return err
 		}
 	}
