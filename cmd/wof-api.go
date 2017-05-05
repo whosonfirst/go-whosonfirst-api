@@ -21,7 +21,7 @@ func main() {
 
 	var stdout = flag.Bool("stdout", false, "Write API results to STDOUT")
 	var geojson = flag.Bool("geojson", false, "Transform API results to source GeoJSON for each API result.")
-	var geojson_ls = flag.Bool("geojson-ls", false, "Transform API results to line-separated source GeoJSON for each API result.")	
+	var geojson_ls = flag.Bool("geojson-ls", false, "Transform API results to line-separated source GeoJSON for each API result.")
 	var pretty_json = flag.Bool("pretty", false, "Pretty-print JSON results.")
 	var csv = flag.Bool("csv", false, "Transform API results to source CSV for each API result.")
 	var filelist = flag.Bool("filelist", false, "Transform API results to a WOF \"file list\".")
@@ -105,7 +105,7 @@ func main() {
 		}
 
 		writers = append(writers, wr)
-		
+
 	} else if *geojson_ls {
 
 		dest := os.Stdout

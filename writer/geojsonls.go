@@ -1,7 +1,7 @@
 package writer
 
 import (
-       "encoding/json"
+	"encoding/json"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/util"
 	"io"
@@ -11,8 +11,8 @@ import (
 
 type GeoJSONLSWriter struct {
 	api.APIResultWriter
-	mu       *sync.Mutex
-	writer   io.Writer
+	mu     *sync.Mutex
+	writer io.Writer
 }
 
 func NewGeoJSONLSWriter(w io.Writer) (*GeoJSONLSWriter, error) {
@@ -20,8 +20,8 @@ func NewGeoJSONLSWriter(w io.Writer) (*GeoJSONLSWriter, error) {
 	mu := new(sync.Mutex)
 
 	wr := GeoJSONLSWriter{
-		mu:       mu,
-		writer:   w,
+		mu:     mu,
+		writer: w,
 	}
 
 	return &wr, nil
@@ -35,22 +35,32 @@ func (wr *GeoJSONLSWriter) WriteResult(r api.APIPlacesResult) (int, error) {
 		return 0, err
 	}
 
-	body, err := json.Marshal(geojson)
+	var tmp interface{}
+
+	err = json.Unmarshal(geojson, &tmp)
 
 	if err != nil {
 		return 0, err
 	}
-	
+
+	body, err := json.Marshal(tmp)
+
+	if err != nil {
+		return 0, err
+	}
+
 	wr.mu.Lock()
 	defer wr.mu.Unlock()
-	
+
 	n, err := wr.Write(body)
 
 	if err != nil {
 		return n, err
 	}
 
-return n, nil
+	wr.Write([]byte("\n"))
+
+	return n, nil
 }
 
 func (wr *GeoJSONLSWriter) Write(p []byte) (int, error) {
@@ -58,5 +68,5 @@ func (wr *GeoJSONLSWriter) Write(p []byte) (int, error) {
 }
 
 func (wr *GeoJSONLSWriter) Close() error {
-     return nil
+	return nil
 }
