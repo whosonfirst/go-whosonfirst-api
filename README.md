@@ -208,16 +208,32 @@ text := fmt.Sprintf("%s is a %s with Who's On First ID %d", r.WOFName(), r.WOFPl
 Usage of ./bin/wof-api:
   -async
     	Process API results asynchronously. If true then any errors processing a response are reported by will not stop execution.
+  -csv
+    	Transform API results to source CSV for each API result.
+  -csv-output string
+    	The path to a file where CSV output should be written. Output is written to STDOUT if empty.
   -endpoint string
     	Define a custom endpoint for the Who's On First API.
+  -filelist
+    	Transform API results to a WOF "file list".
+  -filelist-output string
+    	The path to a file where WOF "file list"  output should be written. Output is written to STDOUT if empty.
+  -filelist-prefix string
+    	Prepend each WOF "file list" result with this prefix.
   -geojson
-    	Transform API results to source GeoJSON for each Who's On First place.
-  -output string
-    	The path to a file where output should be written.
+    	Transform API results to source GeoJSON for each API result, collating everything in to a single GeoJSON Feature Collection.
+  -geojson-ls
+    	Transform API results to line-separated source GeoJSON for each API result, with one GeoJSON Feature per line.
+  -geojson-ls-output string
+    	The path to a file where line-separated GeoJSON output should be written. Output is written to STDOUT if empty.
+  -geojson-output string
+    	The path to a file where GeoJSON output should be written. Output is written to STDOUT if empty.
   -paginated
     	Automatically paginate API results.
   -param value
     	One or more Who's On First API query=value parameters.
+  -pretty
+    	Pretty-print JSON results.
   -raw
     	Dump raw Who's On First API responses.
   -stdout
@@ -237,7 +253,7 @@ Usage of ./bin/wof-api:
 Fetch all 63, 387 venues in [San Francisco](https://whosonfirst.mapzen.com/spelunker/id/85922583/) as a single GeoJSON `FeatureCollection` by calling the `whosonfirst.places.search` API method, like this:
 
 ```
-./bin/wof-api -param method=whosonfirst.places.search -param locality_id=85922583 -param api_key=mapzen-XXXXXXX -param per_page=500 -param placetype=venue -paginated -geojson -output venues.geojson -timings -async
+./bin/wof-api -param method=whosonfirst.places.search -param locality_id=85922583 -param api_key=mapzen-XXXXXXX -param per_page=500 -param placetype=venue -paginated -geojson -geojson-output venues.geojson -timings -async
 2017/03/03 17:29:11 Failed to retrieve https://whosonfirst.mapzen.com/data/110/880/049/3/1108800493.geojson because 404 Not Found
 2017/03/03 17:29:11 Failed to retrieve https://whosonfirst.mapzen.com/data/110/880/049/1/1108800491.geojson because 404 Not Found
 2017/03/03 17:29:11 Failed to retrieve https://whosonfirst.mapzen.com/data/110/882/755/7/1108827557.geojson because 404 Not Found

@@ -1,13 +1,11 @@
 package writer
 
 import (
-	"bufio"
-	"bytes"
+	"encoding/json"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/util"
 	"io"
 	_ "log"
-	"strings"
 	"sync"
 )
 
@@ -35,7 +33,21 @@ func NewGeoJSONWriter(w io.Writer) (*GeoJSONWriter, error) {
 
 func (wr *GeoJSONWriter) WriteResult(r api.APIPlacesResult) (int, error) {
 
-	json, err := util.APIResultToGeoJSON(r)
+	geojson, err := util.APIResultToGeoJSON(r)
+
+	if err != nil {
+		return 0, err
+	}
+
+	var tmp interface{}
+
+	err = json.Unmarshal(geojson, &tmp)
+
+	if err != nil {
+		return 0, err
+	}
+
+	body, err := json.Marshal(tmp)
 
 	if err != nil {
 		return 0, err
@@ -48,40 +60,10 @@ func (wr *GeoJSONWriter) WriteResult(r api.APIPlacesResult) (int, error) {
 		wr.Write([]byte(`,`))
 	}
 
-	n, err := wr.Write(json)
+	n, err := wr.Write(body)
 
 	if err != nil {
 		return n, err
-	}
-
-	trim := false
-
-	if trim {
-
-		// sudo move me in to a separate package or something
-		// (20170125/thisisaaronland)
-
-		buf := bytes.NewBuffer(json)
-		scanner := bufio.NewScanner(buf)
-
-		n := 0
-
-		for scanner.Scan() {
-
-			str := scanner.Text()
-			str = strings.Trim(str, "\r\n")
-			str = strings.Trim(str, " ")
-
-			i, err := wr.Write([]byte(str))
-
-			if err != nil {
-				return n, err
-			}
-
-			n += i
-		}
-
-		// end of sudo move me	in to a	separate package
 	}
 
 	wr.features += 1

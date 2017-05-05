@@ -19,24 +19,44 @@ func main() {
 
 	flag.Var(&api_params, "param", "One or more Who's On First API query=value parameters.")
 
+	// output/formatting
+
 	var stdout = flag.Bool("stdout", false, "Write API results to STDOUT")
-	var geojson = flag.Bool("geojson", false, "Transform API results to source GeoJSON for each API result.")
-	var geojson_ls = flag.Bool("geojson-ls", false, "Transform API results to line-separated source GeoJSON for each API result.")
+	var raw = flag.Bool("raw", false, "Dump raw Who's On First API responses.")
 	var pretty_json = flag.Bool("pretty", false, "Pretty-print JSON results.")
+
+	// pagination
+
+	var paginated = flag.Bool("paginated", false, "Automatically paginate API results.")
+	var async = flag.Bool("async", false, "Process API results asynchronously. If true then any errors processing a response are reported by will not stop execution.")
+
+	// output formats
+
 	var csv = flag.Bool("csv", false, "Transform API results to source CSV for each API result.")
+	var csv_output = flag.String("csv-output", "", "The path to a file where CSV output should be written. Output is written to STDOUT if empty.")
+
 	var filelist = flag.Bool("filelist", false, "Transform API results to a WOF \"file list\".")
 	var filelist_prefix = flag.String("filelist-prefix", "", "Prepend each WOF \"file list\" result with this prefix.")
-	var raw = flag.Bool("raw", false, "Dump raw Who's On First API responses.")
-	var async = flag.Bool("async", false, "Process API results asynchronously. If true then any errors processing a response are reported by will not stop execution.")
-	var timings = flag.Bool("timings", false, "Track and report total time to invoke an API method. Timings are printed to STDOUT.")
-	var paginated = flag.Bool("paginated", false, "Automatically paginate API results.")
+	var filelist_output = flag.String("filelist-output", "", "The path to a file where WOF \"file list\"  output should be written. Output is written to STDOUT if empty.")
 
-	var output = flag.String("output", "", "The path to a file where output should be written.")
+	var geojson = flag.Bool("geojson", false, "Transform API results to source GeoJSON for each API result, collating everything in to a single GeoJSON Feature Collection.")
+	var geojson_output = flag.String("geojson-output", "", "The path to a file where GeoJSON output should be written. Output is written to STDOUT if empty.")
+
+	var geojson_ls = flag.Bool("geojson-ls", false, "Transform API results to line-separated source GeoJSON for each API result, with one GeoJSON Feature per line.")
+	var geojson_ls_output = flag.String("geojson-ls-output", "", "The path to a file where line-separated GeoJSON output should be written. Output is written to STDOUT if empty.")
+
+	// silly
 
 	var tts_speak = flag.Bool("tts", false, "Output integers to a text-to-speak engine.")
 	var tts_engine = flag.String("tts-engine", "", "A valid go-writer-tts text-to-speak engine. Valid options are: osx, polly.")
 
+	// advanced
+
 	var custom_endpoint = flag.String("endpoint", "", "Define a custom endpoint for the Who's On First API.")
+
+	// misc
+
+	var timings = flag.Bool("timings", false, "Track and report total time to invoke an API method. Timings are printed to STDOUT.")
 
 	flag.Parse()
 
@@ -80,16 +100,13 @@ func main() {
 		writers = append(writers, ts)
 	}
 
-	// please reconcile -csv -geojson -filelist etc.
-	// https://github.com/whosonfirst/go-whosonfirst-api/issues/4
-
 	if *geojson {
 
 		dest := os.Stdout
 
-		if *output != "" {
+		if *geojson_output != "" {
 
-			f, err := os.OpenFile(*output, os.O_RDWR|os.O_CREATE, 0644)
+			f, err := os.OpenFile(*geojson_output, os.O_RDWR|os.O_CREATE, 0644)
 
 			if err != nil {
 				log.Fatal(err)
@@ -105,14 +122,15 @@ func main() {
 		}
 
 		writers = append(writers, wr)
+	}
 
-	} else if *geojson_ls {
+	if *geojson_ls {
 
 		dest := os.Stdout
 
-		if *output != "" {
+		if *geojson_ls_output != "" {
 
-			f, err := os.OpenFile(*output, os.O_RDWR|os.O_CREATE, 0644)
+			f, err := os.OpenFile(*geojson_ls_output, os.O_RDWR|os.O_CREATE, 0644)
 
 			if err != nil {
 				log.Fatal(err)
@@ -128,14 +146,15 @@ func main() {
 		}
 
 		writers = append(writers, wr)
+	}
 
-	} else if *csv {
+	if *csv {
 
 		dest := os.Stdout
 
-		if *output != "" {
+		if *csv_output != "" {
 
-			fh, err := os.OpenFile(*output, os.O_RDWR|os.O_CREATE, 0644)
+			fh, err := os.OpenFile(*csv_output, os.O_RDWR|os.O_CREATE, 0644)
 
 			if err != nil {
 				log.Fatal(err)
@@ -152,13 +171,15 @@ func main() {
 
 		writers = append(writers, wr)
 
-	} else if *filelist {
+	}
+
+	if *filelist {
 
 		dest := os.Stdout
 
-		if *output != "" {
+		if *filelist_output != "" {
 
-			fh, err := os.OpenFile(*output, os.O_RDWR|os.O_CREATE, 0644)
+			fh, err := os.OpenFile(*filelist_output, os.O_RDWR|os.O_CREATE, 0644)
 
 			if err != nil {
 				log.Fatal(err)
@@ -176,11 +197,9 @@ func main() {
 		wr.Prefix = *filelist_prefix
 
 		writers = append(writers, wr)
-
-	} else {
 	}
 
-	if *stdout {
+	if *stdout || len(writers) == 0 {
 
 		st, err := writer.NewStdoutWriter()
 
@@ -232,17 +251,6 @@ func main() {
 	if *raw {
 
 		dest := os.Stdout
-
-		if *output != "" {
-
-			fh, err := os.OpenFile(*output, os.O_RDWR|os.O_CREATE, 0644)
-
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			dest = fh
-		}
 
 		cb = func(rsp api.APIResponse) error {
 
