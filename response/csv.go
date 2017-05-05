@@ -133,8 +133,23 @@ func ParseCSVResponse(http_rsp *http.Response) (*CSVResponse, error) {
 	cursor := header.Get("X-Api-Pagination-Cursor")
 	next_query := header.Get("X-Api-Pagination-Next-Query")
 
+	// account for the fact that we may be invoking this in
+	// a non-paginated context, like whosonfirst.places.getRandom
+
 	if str_page == "" {
 		str_page = "1"
+	}
+
+	if str_pages == "" {
+		str_pages = "1"
+	}
+
+	if str_per_page == "" {
+		str_per_page = "1"
+	}
+
+	if str_total == "" {
+		str_total = "1"
 	}
 
 	page, err := strconv.Atoi(str_page)
