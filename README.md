@@ -173,6 +173,8 @@ Like the `multi` writer the `async` writer begs the question: Is this a "writer"
 
 This writer will generate a new CSV output where each row is the value of the `api.APIPlacesResult` 's `String()` method.
 
+**Important** : As of this writing that means you'll need to explicitly ask the WOF API for CSV-formatted results by passing in `-param format=csv`. In the future, things might be a little more magical and elegant. Today they are not...
+
 ### geojson
 
 This writer will go out over the network and fetch the source document (from [https://whosonfirst.mapzen.com/data](https://whosonfirst.mapzen.com/data)) for each API result and return a GeoJSON `FeatureCollection` (with all the results).
