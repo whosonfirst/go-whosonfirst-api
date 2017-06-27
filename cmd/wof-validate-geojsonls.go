@@ -20,6 +20,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 )
 
 type Validator struct {
@@ -55,6 +56,7 @@ func (v *Validator) Validate(raw string, ch chan bool) {
 			}
 
 			log.Println(msg)
+			break
 		}
 	}
 
@@ -75,6 +77,8 @@ func main() {
 	}
 
 	for _, path := range flag.Args() {
+
+		t1 := time.Now()
 
 		fh, err := os.Open(path)
 
@@ -105,8 +109,10 @@ func main() {
 			v.Validate(raw, ch)
 		}
 
+		t2 := time.Since(t1)
+
 		if *stats {
-			log.Printf("%s %d records processed\n", path, lineno)
+			log.Printf("%s %d records processed in %v\n", path, lineno, t2)
 		}
 	}
 
