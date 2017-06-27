@@ -1,6 +1,7 @@
 package writer
 
 import (
+	"bufio"
 	"encoding/json"
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/util"
@@ -12,7 +13,7 @@ import (
 type GeoJSONLSWriter struct {
 	api.APIResultWriter
 	mu     *sync.Mutex
-	writer io.Writer
+	writer *bufio.Writer
 }
 
 func NewGeoJSONLSWriter(w io.Writer) (*GeoJSONLSWriter, error) {
@@ -21,7 +22,7 @@ func NewGeoJSONLSWriter(w io.Writer) (*GeoJSONLSWriter, error) {
 
 	wr := GeoJSONLSWriter{
 		mu:     mu,
-		writer: w,
+		writer: bufio.NewWriter(w),
 	}
 
 	return &wr, nil
@@ -64,7 +65,13 @@ func (wr *GeoJSONLSWriter) WriteResult(r api.APIPlacesResult) (int, error) {
 }
 
 func (wr *GeoJSONLSWriter) Write(p []byte) (int, error) {
-	return wr.writer.Write(p)
+	i, err := wr.writer.Write(p)
+
+	if err == nil {
+		wr.writer.Flush()
+	}
+
+	return i, err
 }
 
 func (wr *GeoJSONLSWriter) Close() error {
