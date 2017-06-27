@@ -5,8 +5,8 @@ package main
 ./bin/wof-api -async -paginated -geojson-ls -geojson-ls-output test.txt -timings -param api_key=mapzen-xxxxxx -param method=whosonfirst.places.search -param placetype=venue -param neighbourhood_id=85834637
 2017/06/27 18:50:52 time to 'whosonfirst.places.search': 5.20128877s
 
-./bin/wof-validate-geojsonls ./test.txt
-2017/06/27 18:51:06 ./test.txt 1022 records processed
+./bin/wof-validate-geojsonls -stats ./test.txt
+2017/06/27 19:05:26 ./test.txt 1022 records processed 60.291534ms
 
 */
 
