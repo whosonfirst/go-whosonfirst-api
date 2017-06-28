@@ -93,10 +93,11 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 			rsp, err := mapzen.ParseMapzenResponse(http_rsp)
 
 			if err != nil {
-				msg := fmt.Sprintf("%d %s", rsp.Meta.StatusCode, rsp.Results.Error.Message)
-				return nil, errors.New(msg)
-
+				return nil, err
 			}
+
+			msg := fmt.Sprintf("%d %s", rsp.Meta.StatusCode, rsp.Results.Error.Message)
+			return nil, errors.New(msg)
 		}
 
 		return nil, errors.New(http_rsp.Status)
