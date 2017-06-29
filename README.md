@@ -298,3 +298,5 @@ The `-geojson` flag will instruct the `wof-api` tool to determine the fully qual
 ## See also
 
 * https://mapzen.com/documentation/wof/
+* https://github.com/whosonfirst/go-whosonfirst-utils#wof-geojsonls-dump
+* https://github.com/whosonfirst/go-whosonfirst-utils#wof-geojsonls-validate
