@@ -19,8 +19,8 @@ func NewMapzenAPIEndpoint(key string) (*MapzenAPIEndpoint, error) {
 
 	e := MapzenAPIEndpoint{
 		Scheme: "https",
-		Host:   "whosonfirst-api.mapzen.com",
-		Path:   "",
+		Host:   "places.mapzen.com",
+		Path:   "v1",
 		Key:    key,
 	}
 
