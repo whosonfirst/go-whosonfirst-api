@@ -57,3 +57,4 @@ fmt:
 
 bin:	self
 	@GOPATH=$(shell pwd) go build -o bin/wof-api cmd/wof-api.go
+	@GOPATH=$(shell pwd) go build -o bin/wof-api-batch cmd/wof-api-batch.go
