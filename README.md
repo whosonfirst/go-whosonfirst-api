@@ -1,6 +1,6 @@
 # go-whosonfirst-api
 
-Go package for working with the [Who's On First API](https://mapzen.com/documentation/wof/).
+Go package for working with the [Who's On First (Mapzen Places) API](https://mapzen.com/documentation/places/).
 
 ## Install
 
@@ -297,6 +297,6 @@ The `-geojson` flag will instruct the `wof-api` tool to determine the fully qual
 
 ## See also
 
-* https://mapzen.com/documentation/wof/
+* https://mapzen.com/documentation/places/
 * https://github.com/whosonfirst/go-whosonfirst-utils#wof-geojsonls-dump
 * https://github.com/whosonfirst/go-whosonfirst-utils#wof-geojsonls-validate
