@@ -49,12 +49,12 @@ func (r JSONResult) WOFRepo() string {
 }
 
 func (r JSONResult) Path() string {
-	path, _ := uri.Id2RelPath(int(r.WOFId()))
+	path, _ := uri.Id2RelPath(r.WOFId())
 	return path
 }
 
 func (r JSONResult) URI() string {
-	uri, _ := uri.Id2AbsPath("https://whosonfirst.mapzen.com/data", int(r.WOFId()))
+	uri, _ := uri.Id2AbsPath("https://whosonfirst.mapzen.com/data", r.WOFId())
 	return uri
 }
 
