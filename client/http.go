@@ -1,6 +1,7 @@
 package client
 
 import (
+        "context"
 	"errors"
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-api"
@@ -55,7 +56,7 @@ func (client *HTTPClient) DefaultArgs() *url.Values {
 	return &args
 }
 
-func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.APIResponse, error) {
+func (client *HTTPClient) ExecuteMethod(ctx context.Context, method string, params *url.Values) (api.APIResponse, error) {
 
 	params.Set("method", method)
 
@@ -67,7 +68,35 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 
 	http_req.Header.Add("Accept-Encoding", "gzip")
 
-	http_rsp, http_err := client.http_client.Do(http_req)
+	c := make(chan struct {
+		r   *http.Response
+		err error
+	}, 1)
+
+	go func() {
+
+		http_rsp, http_err := client.http_client.Do(http_req)
+
+		pack := struct {
+			r   *http.Response
+			err error
+		}{http_rsp, http_err}
+
+		c <- pack
+	}()
+
+	var http_rsp *http.Response
+	var http_err error
+
+	select {
+	case <-ctx.Done():
+		client.http_client.Transport.CancelRequest(http_req)
+		<-c // Wait for client.Do
+		return nil, ctx.Err()
+	case rsp := <-c:
+		http_rsp = rsp.r
+		http_err = rsp.err
+	}
 
 	if http_err != nil {
 		msg := fmt.Sprintf("HTTP request failed: %s", http_err.Error())
@@ -127,9 +156,9 @@ func (client *HTTPClient) ExecuteMethod(method string, params *url.Values) (api.
 	return rsp, nil
 }
 
-func (client *HTTPClient) ExecuteMethodWithCallback(method string, params *url.Values, callback api.APIResponseCallback) error {
+func (client *HTTPClient) ExecuteMethodWithCallback(ctx context.Context, method string, params *url.Values, callback api.APIResponseCallback) error {
 
-	rsp, err := client.ExecuteMethod(method, params)
+	rsp, err := client.ExecuteMethod(ctx, method, params)
 
 	if err != nil {
 		return err
@@ -144,13 +173,13 @@ func (client *HTTPClient) ExecuteMethodWithCallback(method string, params *url.V
 	return callback(rsp)
 }
 
-func (client *HTTPClient) ExecuteMethodPaginated(method string, params *url.Values, callback api.APIResponseCallback) error {
+func (client *HTTPClient) ExecuteMethodPaginated(ctx context.Context, method string, params *url.Values, callback api.APIResponseCallback) error {
 
 	api_key := params.Get("api_key") // PLEASE MAKE ME GENERIC AND INTERFACE-Y
 
 	for {
 
-		rsp, err := client.ExecuteMethod(method, params)
+		rsp, err := client.ExecuteMethod(ctx, method, params)
 
 		if err != nil {
 			return err
