@@ -55,7 +55,7 @@ func (client *HTTPClient) ExecuteMethod(ctx context.Context, method string, para
 		return nil, err
 	}
 
-	err = client.endpoint.AddAuthentication(http_req)
+	err = client.endpoint.AppendAuthentication(http_req)
 
 	if err != nil {
 		return nil, err

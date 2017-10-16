@@ -12,7 +12,7 @@ type APIEndpoint interface {
 	URL() (*url.URL, error)
 	NewRequest(*url.Values) (*http.Request, error)
 	SetEndpoint(string) error
-	AddAuthentication(*http.Request) error
+	AppendAuthentication(*http.Request) error
 }
 
 type APIThrottle interface {

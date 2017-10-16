@@ -23,7 +23,7 @@ func (fl *StdoutFlags) Set(value string) error {
 	return nil
 }
 
-func (fl StdoutFlags) Filehandles() ([]io.Writer, error) {
+func (fl StdoutFlags) FileHandles() ([]io.Writer, error) {
 
 	writers := []io.Writer{os.Stdout}
 	return writers, nil

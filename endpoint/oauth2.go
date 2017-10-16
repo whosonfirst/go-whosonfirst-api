@@ -42,7 +42,7 @@ func (e *OAuth2APIEndpoint) SetEndpoint(custom string) error {
 	return nil
 }
 
-func (e *OAuth2APIEndpoint) SetAuthentication(req *http.Request) error {
+func (e *OAuth2APIEndpoint) AppendAuthentication(req *http.Request) error {
 
 	u := req.URL
 	q := u.Query()

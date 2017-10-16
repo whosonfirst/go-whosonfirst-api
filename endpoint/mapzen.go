@@ -42,7 +42,7 @@ func (e *MapzenAPIEndpoint) SetEndpoint(custom string) error {
 	return nil
 }
 
-func (e *MapzenAPIEndpoint) SetAuthentication(req *http.Request) error {
+func (e *MapzenAPIEndpoint) AppendAuthentication(req *http.Request) error {
 
 	u := req.URL
 	q := u.Query()

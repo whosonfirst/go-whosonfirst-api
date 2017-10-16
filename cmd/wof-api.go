@@ -112,6 +112,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	writers := make([]api.APIResultWriter, 0)
+
 	csv_func := func(fh io.Writer) (api.APIResultWriter, error) {
 		return writer.NewCSVWriter(fh)
 	}
@@ -132,15 +134,53 @@ func main() {
 		return writer.NewStdoutWriter()
 	}
 
-	flags_map := map[flags.ResultWriterFlags]flags.ResultWriterFunc{
-		csv_flags:       csv_func,
-		filelist_flags:  filelist_func,
-		geojson_flags:   geojson_func,
-		geojsonls_flags: geojsonls_func,
-		stdout_flags:    stdout_func,
+	append_flags := func(fl flags.ResultWriterFlags, f flags.ResultWriterFunc, wr []api.APIResultWriter) ([]api.APIResultWriter, error) {
+
+		filehandles, err := fl.FileHandles()
+
+		if err != nil {
+			return nil, err
+		}
+
+		for _, fh := range filehandles {
+
+			wr, err := f(fh)
+
+			if err != nil {
+				return nil, err
+			}
+
+			writers = append(writers, wr)
+		}
+
+		return writers, nil
 	}
 
-	writers, err := flags.ResultWriterFlagsToResultWriters(flags_map)
+	writers, err = append_flags(csv_flags, csv_func, writers)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	writers, err = append_flags(filelist_flags, filelist_func, writers)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	writers, err = append_flags(geojson_flags, geojson_func, writers)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	writers, err = append_flags(geojsonls_flags, geojsonls_func, writers)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	writers, err = append_flags(stdout_flags, stdout_func, writers)
 
 	if err != nil {
 		log.Fatal(err)

@@ -3,6 +3,7 @@ package throttle
 import (
 	"context"
 	"github.com/whosonfirst/go-whosonfirst-api"
+	_ "log"
 	"sync/atomic"
 	"time"
 )
@@ -64,11 +65,13 @@ func (thr *DefaultThrottle) RateLimit() chan bool {
 			qpm := atomic.LoadInt32(&thr.qpmcount)
 			qph := atomic.LoadInt32(&thr.qphcount)
 
-			if qps >= thr.qpscount {
+			// log.Println("QP", qps, qpm, qph)
+
+			if qps >= thr.QueriesPerSecond {
 				time.Sleep(100 * time.Millisecond)
-			} else if qpm >= thr.qpmcount {
+			} else if qpm >= thr.QueriesPerMinute {
 				time.Sleep(200 * time.Millisecond)
-			} else if qph >= thr.qphcount {
+			} else if qph >= thr.QueriesPerHour {
 				time.Sleep(500 * time.Millisecond)
 			} else {
 
