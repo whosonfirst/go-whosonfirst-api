@@ -9,22 +9,22 @@ prep:
 self:   prep
 	if test -d src/github.com/whosonfirst/go-whosonfirst-api; then rm -rf src/github.com/whosonfirst/go-whosonfirst-api; fi
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/client
-	cp client/*.go src/github.com/whosonfirst/go-whosonfirst-api/client/
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/endpoint
-	cp endpoint/*.go src/github.com/whosonfirst/go-whosonfirst-api/endpoint/
+	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/flags
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/mapzen
-	cp mapzen/*.go src/github.com/whosonfirst/go-whosonfirst-api/mapzen/
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/response
-	cp response/*.go src/github.com/whosonfirst/go-whosonfirst-api/response/
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/result
-	cp result/*.go src/github.com/whosonfirst/go-whosonfirst-api/result/
-	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/util
-	cp util/*.go src/github.com/whosonfirst/go-whosonfirst-api/util/
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/throttle
-	cp throttle/*.go src/github.com/whosonfirst/go-whosonfirst-api/throttle/
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/util
-	cp util/*.go src/github.com/whosonfirst/go-whosonfirst-api/util/
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/writer
+	cp client/*.go src/github.com/whosonfirst/go-whosonfirst-api/client/
+	cp endpoint/*.go src/github.com/whosonfirst/go-whosonfirst-api/endpoint/
+	cp flags/*.go src/github.com/whosonfirst/go-whosonfirst-api/flags/
+	cp mapzen/*.go src/github.com/whosonfirst/go-whosonfirst-api/mapzen/
+	cp response/*.go src/github.com/whosonfirst/go-whosonfirst-api/response/
+	cp result/*.go src/github.com/whosonfirst/go-whosonfirst-api/result/
+	cp throttle/*.go src/github.com/whosonfirst/go-whosonfirst-api/throttle/
+	cp util/*.go src/github.com/whosonfirst/go-whosonfirst-api/util/
 	cp writer/*.go src/github.com/whosonfirst/go-whosonfirst-api/writer/
 	cp api.go src/github.com/whosonfirst/go-whosonfirst-api/
 	if test ! -d src; then mkdir src; fi
@@ -51,6 +51,7 @@ fmt:
 	go fmt client/*.go
 	go fmt cmd/*.go
 	go fmt endpoint/*.go
+	go fmt flags/*.go
 	go fmt mapzen/*.go
 	go fmt response/*.go
 	go fmt result/*.go

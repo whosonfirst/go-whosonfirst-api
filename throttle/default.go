@@ -32,7 +32,7 @@ func NewDefaultThrottle(ctx context.Context) (api.APIThrottle, error) {
 	tm := time.Tick(time.Minute * 1)
 	th := time.Tick(time.Hour * 1)
 
-	watch := func(t <- chan time.Time, i int32) {
+	watch := func(t <-chan time.Time, i int32) {
 
 		for range t {
 

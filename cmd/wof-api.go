@@ -8,8 +8,10 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/client"
 	"github.com/whosonfirst/go-whosonfirst-api/endpoint"
+	"github.com/whosonfirst/go-whosonfirst-api/flags"
 	"github.com/whosonfirst/go-whosonfirst-api/throttle"
 	"github.com/whosonfirst/go-whosonfirst-api/writer"
+	"io"
 	"log"
 	"os"
 	"time"
@@ -17,13 +19,24 @@ import (
 
 func main() {
 
+	var csv_flags flags.FileHandleFlags
+	var filelist_flags flags.FileHandleFlags
+	var geojson_flags flags.FileHandleFlags
+	var geojsonls_flags flags.FileHandleFlags
+	var stdout_flags flags.StdoutFlags
+
 	var api_params api.APIParams
 
 	flag.Var(&api_params, "param", "One or more Who's On First API query=value parameters.")
 
+	flag.Var(&csv_flags, "csv", "")
+	flag.Var(&filelist_flags, "filelist", "")
+	flag.Var(&geojson_flags, "geojson", "")
+	flag.Var(&geojsonls_flags, "geojson-ls", "")
+	flag.Var(&stdout_flags, "stdout", "")
+
 	// output/formatting
 
-	var stdout = flag.Bool("stdout", false, "Write API results to STDOUT")
 	var raw = flag.Bool("raw", false, "Dump raw Who's On First API responses.")
 	var pretty_json = flag.Bool("pretty", false, "Pretty-print JSON results.")
 
@@ -34,18 +47,8 @@ func main() {
 
 	// output formats
 
-	var csv = flag.Bool("csv", false, "Transform API results to source CSV for each API result.")
-	var csv_output = flag.String("csv-output", "", "The path to a file where CSV output should be written. Output is written to STDOUT if empty.")
-
-	var filelist = flag.Bool("filelist", false, "Transform API results to a WOF \"file list\".")
-	var filelist_prefix = flag.String("filelist-prefix", "", "Prepend each WOF \"file list\" result with this prefix.")
-	var filelist_output = flag.String("filelist-output", "", "The path to a file where WOF \"file list\"  output should be written. Output is written to STDOUT if empty.")
-
-	var geojson = flag.Bool("geojson", false, "Transform API results to source GeoJSON for each API result, collating everything in to a single GeoJSON Feature Collection.")
-	var geojson_output = flag.String("geojson-output", "", "The path to a file where GeoJSON output should be written. Output is written to STDOUT if empty.")
-
-	var geojson_ls = flag.Bool("geojson-ls", false, "Transform API results to line-separated source GeoJSON for each API result, with one GeoJSON Feature per line.")
-	var geojson_ls_output = flag.String("geojson-ls-output", "", "The path to a file where line-separated GeoJSON output should be written. Output is written to STDOUT if empty.")
+	// var filelist_prefix = flag.String("filelist-prefix", "", "Prepend each WOF \"file list\" result with this prefix.")
+	// var filelist_output = flag.String("filelist-output", "", "The path to a file where WOF \"file list\"  output should be written. Output is written to STDOUT if empty.")
 
 	// advanced
 
@@ -59,7 +62,7 @@ func main() {
 	flag.Parse()
 
 	args := api_params.ToArgs()
-	
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -109,116 +112,38 @@ func main() {
 		log.Fatal(err)
 	}
 
-	writers := make([]api.APIResultWriter, 0)
-
-	if *geojson {
-
-		dest := os.Stdout
-
-		if *geojson_output != "" {
-
-			f, err := os.OpenFile(*geojson_output, os.O_RDWR|os.O_CREATE, 0644)
-
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			dest = f
-		}
-
-		wr, err := writer.NewGeoJSONWriter(dest)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		writers = append(writers, wr)
+	csv_func := func(fh io.Writer) (api.APIResultWriter, error) {
+		return writer.NewCSVWriter(fh)
 	}
 
-	if *geojson_ls {
-
-		dest := os.Stdout
-
-		if *geojson_ls_output != "" {
-
-			f, err := os.OpenFile(*geojson_ls_output, os.O_RDWR|os.O_CREATE, 0644)
-
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			dest = f
-		}
-
-		wr, err := writer.NewGeoJSONLSWriter(dest)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		writers = append(writers, wr)
+	filelist_func := func(fh io.Writer) (api.APIResultWriter, error) {
+		return writer.NewFileListWriter(fh)
 	}
 
-	if *csv {
-
-		dest := os.Stdout
-
-		if *csv_output != "" {
-
-			fh, err := os.OpenFile(*csv_output, os.O_RDWR|os.O_CREATE, 0644)
-
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			dest = fh
-		}
-
-		wr, err := writer.NewCSVWriter(dest)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		writers = append(writers, wr)
-
+	geojson_func := func(fh io.Writer) (api.APIResultWriter, error) {
+		return writer.NewGeoJSONWriter(fh)
 	}
 
-	if *filelist {
-
-		dest := os.Stdout
-
-		if *filelist_output != "" {
-
-			fh, err := os.OpenFile(*filelist_output, os.O_RDWR|os.O_CREATE, 0644)
-
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			dest = fh
-		}
-
-		wr, err := writer.NewFileListWriter(dest)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		wr.Prefix = *filelist_prefix
-
-		writers = append(writers, wr)
+	geojsonls_func := func(fh io.Writer) (api.APIResultWriter, error) {
+		return writer.NewGeoJSONLSWriter(fh)
 	}
 
-	if *stdout || len(writers) == 0 {
+	stdout_func := func(fh io.Writer) (api.APIResultWriter, error) {
+		return writer.NewStdoutWriter()
+	}
 
-		st, err := writer.NewStdoutWriter()
+	flags_map := map[flags.ResultWriterFlags]flags.ResultWriterFunc{
+		csv_flags:       csv_func,
+		filelist_flags:  filelist_func,
+		geojson_flags:   geojson_func,
+		geojsonls_flags: geojsonls_func,
+		stdout_flags:    stdout_func,
+	}
 
-		if err != nil {
-			log.Fatal(err)
-		}
+	writers, err := flags.ResultWriterFlagsToResultWriters(flags_map)
 
-		writers = append(writers, st)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	var multi api.APIResultMultiWriter
@@ -282,7 +207,7 @@ func main() {
 	}
 
 	method := args.Get("method")
-	
+
 	if *paginated {
 		err = cl.ExecuteMethodPaginated(ctx, method, args, cb)
 
