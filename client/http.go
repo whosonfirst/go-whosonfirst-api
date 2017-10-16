@@ -16,16 +16,11 @@ import (
 type HTTPClient struct {
 	api.APIClient
 	endpoint    api.APIEndpoint
-	qpslimit    int
-	qpmlimit    int
-	qphlimit    int
-	qpscount    int
-	qpmcount    int
-	qphcount    int
+	throttle    api.APIThrottle
 	http_client *http.Client
 }
 
-func NewHTTPClient(endpoint api.APIEndpoint) (*HTTPClient, error) {
+func NewHTTPClient(endpoint api.APIEndpoint, throttle api.APIThrottle) (*HTTPClient, error) {
 
 	tr := &http.Transport{
 		MaxIdleConns:    10,
@@ -36,17 +31,9 @@ func NewHTTPClient(endpoint api.APIEndpoint) (*HTTPClient, error) {
 
 	cl := HTTPClient{
 		endpoint:    endpoint,
-		qpslimit:    6,
-		qpmlimit:    30,
-		qphlimit:    1000,
-		qpscount:    0,
-		qpmcount:    0,
-		qphcount:    0,
+		throttle:    throttle,
 		http_client: http_client,
 	}
-
-	// TO DO: set up a channel/throttle to block calls to ExecuteMethod
-	// from exceeding QPS/M/H (20170125/thisisaaronland)
 
 	return &cl, nil
 }
@@ -57,6 +44,8 @@ func (client *HTTPClient) DefaultArgs() *url.Values {
 }
 
 func (client *HTTPClient) ExecuteMethod(ctx context.Context, method string, params *url.Values) (api.APIResponse, error) {
+
+	<-client.throttle.RateLimit()
 
 	params.Set("method", method)
 

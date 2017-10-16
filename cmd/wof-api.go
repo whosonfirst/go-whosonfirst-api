@@ -8,6 +8,7 @@ import (
 	"github.com/whosonfirst/go-whosonfirst-api"
 	"github.com/whosonfirst/go-whosonfirst-api/client"
 	"github.com/whosonfirst/go-whosonfirst-api/endpoint"
+	"github.com/whosonfirst/go-whosonfirst-api/throttle"
 	"github.com/whosonfirst/go-whosonfirst-api/writer"
 	"log"
 	"os"
@@ -49,7 +50,7 @@ func main() {
 	// advanced
 
 	var custom_endpoint = flag.String("endpoint", "", "Define a custom endpoint for the Who's On First API.")
-	var oauth2 = flag.Bool("oauth2", false, "")	
+	var oauth2 = flag.Bool("oauth2", false, "")
 
 	// misc
 
@@ -58,16 +59,14 @@ func main() {
 	flag.Parse()
 
 	args := api_params.ToArgs()
-	method := args.Get("method")
-
-	if method == "" {
-		log.Fatal("You forgot to specify a method")
-	}
+	
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	var ep api.APIEndpoint
 
 	if *oauth2 {
-	
+
 		access_token := args.Get("access_token")
 		e, err := endpoint.NewOAuth2APIEndpoint(access_token)
 
@@ -96,10 +95,19 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-
 	}
 
-	c, _ := client.NewHTTPClient(ep)
+	th, err := throttle.NewDefaultThrottle(ctx)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cl, err := client.NewHTTPClient(ep, th)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	writers := make([]api.APIResultWriter, 0)
 
@@ -273,15 +281,13 @@ func main() {
 		t1 = time.Now()
 	}
 
-	ctx := context.TODO()
-
-	var err error
+	method := args.Get("method")
 	
 	if *paginated {
-		err = c.ExecuteMethodPaginated(ctx, method, args, cb)
+		err = cl.ExecuteMethodPaginated(ctx, method, args, cb)
 
 	} else {
-		err = c.ExecuteMethodWithCallback(ctx, method, args, cb)
+		err = cl.ExecuteMethodWithCallback(ctx, method, args, cb)
 	}
 
 	if err != nil {

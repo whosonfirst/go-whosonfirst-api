@@ -1,7 +1,7 @@
 package api
 
 import (
-        "context"
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -13,6 +13,10 @@ type APIEndpoint interface {
 	NewRequest(*url.Values) (*http.Request, error)
 	SetEndpoint(string) error
 	AddAuthentication(*http.Request) error
+}
+
+type APIThrottle interface {
+	RateLimit() chan bool
 }
 
 type APIClient interface {

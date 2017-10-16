@@ -20,6 +20,10 @@ self:   prep
 	cp result/*.go src/github.com/whosonfirst/go-whosonfirst-api/result/
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/util
 	cp util/*.go src/github.com/whosonfirst/go-whosonfirst-api/util/
+	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/throttle
+	cp throttle/*.go src/github.com/whosonfirst/go-whosonfirst-api/throttle/
+	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/util
+	cp util/*.go src/github.com/whosonfirst/go-whosonfirst-api/util/
 	mkdir -p src/github.com/whosonfirst/go-whosonfirst-api/writer
 	cp writer/*.go src/github.com/whosonfirst/go-whosonfirst-api/writer/
 	cp api.go src/github.com/whosonfirst/go-whosonfirst-api/
@@ -50,6 +54,7 @@ fmt:
 	go fmt mapzen/*.go
 	go fmt response/*.go
 	go fmt result/*.go
+	go fmt throttle/*.go
 	go fmt util/*.go
 	go fmt writer/*.go
 
