@@ -1,6 +1,7 @@
 package api
 
 import (
+        "context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -11,11 +12,12 @@ type APIEndpoint interface {
 	URL() (*url.URL, error)
 	NewRequest(*url.Values) (*http.Request, error)
 	SetEndpoint(string) error
+	AddAuthentication(*http.Request) error
 }
 
 type APIClient interface {
-	ExecuteMethod(string, *url.Values) (APIResponse, error)
-	ExecuteMethodWithCallback(string, *url.Values, APIResponseCallback) error
+	ExecuteMethod(context.Context, string, *url.Values) (APIResponse, error)
+	ExecuteMethodWithCallback(context.Context, string, *url.Values, APIResponseCallback) error
 	DefaultArgs() *url.Values
 }
 

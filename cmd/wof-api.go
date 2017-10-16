@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"github.com/tidwall/pretty"
@@ -45,14 +46,10 @@ func main() {
 	var geojson_ls = flag.Bool("geojson-ls", false, "Transform API results to line-separated source GeoJSON for each API result, with one GeoJSON Feature per line.")
 	var geojson_ls_output = flag.String("geojson-ls-output", "", "The path to a file where line-separated GeoJSON output should be written. Output is written to STDOUT if empty.")
 
-	// silly
-
-	var tts_speak = flag.Bool("tts", false, "Output integers to a text-to-speak engine.")
-	var tts_engine = flag.String("tts-engine", "", "A valid go-writer-tts text-to-speak engine. Valid options are: osx, polly.")
-
 	// advanced
 
 	var custom_endpoint = flag.String("endpoint", "", "Define a custom endpoint for the Who's On First API.")
+	var oauth2 = flag.Bool("oauth2", false, "")	
 
 	// misc
 
@@ -61,23 +58,40 @@ func main() {
 	flag.Parse()
 
 	args := api_params.ToArgs()
-
-	api_key := args.Get("api_key")
 	method := args.Get("method")
 
 	if method == "" {
 		log.Fatal("You forgot to specify a method")
 	}
 
-	e, err := endpoint.NewMapzenAPIEndpoint(api_key)
+	var ep api.APIEndpoint
 
-	if err != nil {
-		log.Fatal(err)
+	if *oauth2 {
+	
+		access_token := args.Get("access_token")
+		e, err := endpoint.NewOAuth2APIEndpoint(access_token)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		ep = e
+
+	} else {
+
+		api_key := args.Get("api_key")
+		e, err := endpoint.NewMapzenAPIEndpoint(api_key)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		ep = e
 	}
 
 	if *custom_endpoint != "" {
 
-		err := e.SetEndpoint(*custom_endpoint)
+		err := ep.SetEndpoint(*custom_endpoint)
 
 		if err != nil {
 			log.Fatal(err)
@@ -85,20 +99,9 @@ func main() {
 
 	}
 
-	c, _ := client.NewHTTPClient(e)
+	c, _ := client.NewHTTPClient(ep)
 
 	writers := make([]api.APIResultWriter, 0)
-
-	if *tts_speak {
-
-		ts, err := writer.NewTTSWriter(*tts_engine)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		writers = append(writers, ts)
-	}
 
 	if *geojson {
 
@@ -259,7 +262,7 @@ func main() {
 			if *pretty_json {
 				raw = pretty.Pretty(raw)
 			}
-			_, err = dest.Write(raw)
+			_, err := dest.Write(raw)
 			return err
 		}
 	}
@@ -270,11 +273,15 @@ func main() {
 		t1 = time.Now()
 	}
 
+	ctx := context.TODO()
+
+	var err error
+	
 	if *paginated {
-		err = c.ExecuteMethodPaginated(method, args, cb)
+		err = c.ExecuteMethodPaginated(ctx, method, args, cb)
 
 	} else {
-		err = c.ExecuteMethodWithCallback(method, args, cb)
+		err = c.ExecuteMethodWithCallback(ctx, method, args, cb)
 	}
 
 	if err != nil {

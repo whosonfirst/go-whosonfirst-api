@@ -42,6 +42,17 @@ func (e *OAuth2APIEndpoint) SetEndpoint(custom string) error {
 	return nil
 }
 
+func (e *OAuth2APIEndpoint) SetAuthentication(req *http.Request) error {
+
+	u := req.URL
+	q := u.Query()
+
+	q.Set("access_token", e.Token)
+	req.URL.RawQuery = q.Encode()
+
+	return nil
+}
+
 func (e *OAuth2APIEndpoint) URL() (*url.URL, error) {
 
 	raw := fmt.Sprintf("%s://%s/%s", e.Scheme, e.Host, e.Path)

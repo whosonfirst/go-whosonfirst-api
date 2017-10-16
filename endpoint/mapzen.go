@@ -42,6 +42,17 @@ func (e *MapzenAPIEndpoint) SetEndpoint(custom string) error {
 	return nil
 }
 
+func (e *MapzenAPIEndpoint) SetAuthentication(req *http.Request) error {
+
+	u := req.URL
+	q := u.Query()
+
+	q.Set("api_key", e.Key)
+	req.URL.RawQuery = q.Encode()
+
+	return nil
+}
+
 func (e *MapzenAPIEndpoint) URL() (*url.URL, error) {
 
 	raw := fmt.Sprintf("%s://%s/%s", e.Scheme, e.Host, e.Path)

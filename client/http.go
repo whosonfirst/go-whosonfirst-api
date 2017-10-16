@@ -1,7 +1,7 @@
 package client
 
 import (
-        "context"
+	"context"
 	"errors"
 	"fmt"
 	"github.com/whosonfirst/go-whosonfirst-api"
@@ -66,37 +66,17 @@ func (client *HTTPClient) ExecuteMethod(ctx context.Context, method string, para
 		return nil, err
 	}
 
+	err = client.endpoint.AddAuthentication(http_req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	http_req = http_req.WithContext(ctx)
+
 	http_req.Header.Add("Accept-Encoding", "gzip")
 
-	c := make(chan struct {
-		r   *http.Response
-		err error
-	}, 1)
-
-	go func() {
-
-		http_rsp, http_err := client.http_client.Do(http_req)
-
-		pack := struct {
-			r   *http.Response
-			err error
-		}{http_rsp, http_err}
-
-		c <- pack
-	}()
-
-	var http_rsp *http.Response
-	var http_err error
-
-	select {
-	case <-ctx.Done():
-		client.http_client.Transport.CancelRequest(http_req)
-		<-c // Wait for client.Do
-		return nil, ctx.Err()
-	case rsp := <-c:
-		http_rsp = rsp.r
-		http_err = rsp.err
-	}
+	http_rsp, http_err := client.http_client.Do(http_req)
 
 	if http_err != nil {
 		msg := fmt.Sprintf("HTTP request failed: %s", http_err.Error())
@@ -175,8 +155,6 @@ func (client *HTTPClient) ExecuteMethodWithCallback(ctx context.Context, method 
 
 func (client *HTTPClient) ExecuteMethodPaginated(ctx context.Context, method string, params *url.Values, callback api.APIResponseCallback) error {
 
-	api_key := params.Get("api_key") // PLEASE MAKE ME GENERIC AND INTERFACE-Y
-
 	for {
 
 		rsp, err := client.ExecuteMethod(ctx, method, params)
@@ -214,8 +192,6 @@ func (client *HTTPClient) ExecuteMethodPaginated(ctx context.Context, method str
 		if err != nil {
 			return err
 		}
-
-		parsed.Set("api_key", api_key) // SEE ABOVE ABOUT GENERIC AND INTERFACE-Y
 
 		params = &parsed
 
