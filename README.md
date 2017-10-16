@@ -20,6 +20,7 @@ _Note that all error handling in the examples below has been removed for the sak
 
 ```
 import (
+        "context"
 	"github.com/whosonfirst/go-whosonfirst-api/client"
 	"github.com/whosonfirst/go-whosonfirst-api/endpoint"
 	"os"
@@ -35,8 +36,11 @@ method := "whosonfirst.places.search"
 args := api_client.DefaultArgs()
 args.Set("query", "poutine")
 args.Set("placetype", "venue")	
-	
-rsp, _ := c.ExecuteMethod(method, args)
+
+ctx, cancel := context.WithCancel(context.Background())
+defer cancel()
+
+rsp, _ := c.ExecuteMethod(ctx, method, args)
 os.Stdout.Write(rsp.Raw())
 ```
 
@@ -44,6 +48,7 @@ os.Stdout.Write(rsp.Raw())
 
 ```
 import (
+        "context"
 	"github.com/whosonfirst/go-whosonfirst-api/client"
 	"github.com/whosonfirst/go-whosonfirst-api/endpoint"
 	"os"
@@ -66,7 +71,10 @@ cb := func(rsp api.APIResponse) error {
 	return err
 }
 
-c.ExecuteMethodPaginated(method, args, cb)
+ctx, cancel := context.WithCancel(context.Background())
+defer cancel()
+
+c.ExecuteMethodPaginated(ctx, method, args, cb)
 ```
 
 ## Interfaces
@@ -189,14 +197,6 @@ This writer will format each API result and send it to STDOUT. Output is formatt
 
 ```
 text := fmt.Sprintf("%d %s %s\n", r.WOFId(), r.WOFPlacetype(), r.WOFName())
-```
-
-### tts
-
-This writer will format each API result and send it to a text-to-speech engine supported by the [go-writer-tts](https://github.com/whosonfirst/go-writer-tts) package (which still needs to be documented properly). Output is formatted as:
-
-```
-text := fmt.Sprintf("%s is a %s with Who's On First ID %d", r.WOFName(), r.WOFPlacetype(), r.WOFId())
 ```
 
 ## Tools
