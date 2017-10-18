@@ -25,6 +25,12 @@ func (fl *StdoutFlags) Set(value string) error {
 
 func (fl StdoutFlags) FileHandles() ([]io.Writer, error) {
 
-	writers := []io.Writer{os.Stdout}
+	writers := make([]io.Writer, 0)
+
+	if fl.flag {
+		fh := os.Stdout
+		writers = append(writers, fh)
+	}
+
 	return writers, nil
 }

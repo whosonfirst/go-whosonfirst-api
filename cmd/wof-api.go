@@ -198,14 +198,6 @@ func main() {
 		log.Fatal("You forgot to specify an output source")
 	}
 
-	// why doesn't this work? see below... (20170125/thisisaaronland)
-
-	/*
-		defer func() {
-			multi.Close()
-		}()
-	*/
-
 	var cb api.APIResponseCallback
 
 	cb = func(rsp api.APIResponse) error {

@@ -33,22 +33,25 @@ func NewDefaultThrottle(ctx context.Context) (api.APIThrottle, error) {
 	tm := time.Tick(time.Minute * 1)
 	th := time.Tick(time.Hour * 1)
 
-	watch := func(t <-chan time.Time, i int32) {
+	watch := func(t <-chan time.Time, i *int32) {
 
-		for range t {
-
-			atomic.StoreInt32(&i, 0)
+		for {
 
 			select {
 			case <-ctx.Done():
 				return
+			default:
+
+				for range t {
+					atomic.StoreInt32(i, 0)
+				}
 			}
 		}
 	}
 
-	go watch(ts, thr.qpscount)
-	go watch(tm, thr.qpmcount)
-	go watch(th, thr.qphcount)
+	go watch(ts, &thr.qpscount)
+	go watch(tm, &thr.qpmcount)
+	go watch(th, &thr.qphcount)
 
 	return &thr, nil
 }
